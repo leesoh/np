@@ -1,8 +1,10 @@
 package result
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/Masterminds/log-go/impl/cli"
@@ -17,7 +19,7 @@ type Result struct {
 type Host struct {
 	IPs      []net.IP
 	Name     string
-	Services []Service
+	Services []*Service
 }
 
 type Service struct {
@@ -30,12 +32,15 @@ func New(logger *cli.Logger) *Result {
 	return &Result{Logger: logger}
 }
 
-func (r *Result) AddNmapHost(ns *scan.NmapScan) {
-	h := &Host{
-		Name: r.GetHostname(ns),
-		IPs:  r.GetIPs(ns),
+func (r *Result) AddNmapHosts(ns *scan.NmapScan) {
+	for _, hh := range ns.Host.Hostnames.Hostname {
+		h := &Host{
+			Name:     r.GetHostname(ns),
+			IPs:      r.GetIPs(ns),
+			Services: r.GetServices(ns),
+		}
+		r.addHost(h)
 	}
-	r.Hosts = append(r.Hosts, h)
 }
 
 func (r *Result) GetHostname(ns *scan.NmapScan) string {
@@ -64,11 +69,31 @@ func (r *Result) GetIPs(ns *scan.NmapScan) []net.IP {
 	return ips
 }
 
-func (r *Result) GetServices(ns *scan.NmapScan) []Service {
-	var services []Service
-	for _, p := range ns.Host.Ports {
-		//TBD
+func (r *Result) GetServices(ns *scan.NmapScan) []*Service {
+	var services []*Service
+	for _, p := range ns.Host.Ports.Port {
+		if p.State.State == "open" {
+			port, _ := strconv.Atoi(p.Portid)
+			s := &Service{
+				Port:     port,
+				Protocol: p.Protocol,
+				Name:     p.Service.Name,
+			}
+			services = append(services, s)
+			r.Logger.Debugf("found services: %v", s)
+		}
 	}
+	return services
+}
+
+func (r *Result) addHost(h *Host) {
+	for _, hh := range r.Hosts {
+		// Names are the same, we should merge
+		if hh.Name == h.Name {
+			//TBD
+		}
+	}
+	r.Hosts = append(r.Hosts, h)
 }
 
 func (r *Result) Print() {
@@ -77,13 +102,20 @@ func (r *Result) Print() {
 		if h.Name != "" {
 			fmt.Printf("%v (%v)\n", h.Name, r.PrintableIPList(h.IPs))
 		}
+		for _, s := range h.Services {
+			fmt.Printf("\t%v/%v %v\n", s.Port, s.Protocol, s.Name)
+		}
+	}
+}
 
-		//} else {
-		//	fmt.Println(h.IPs[0])
-		//}
-		//for _, s := range h.Services {
-		//	fmt.Printf("\t%v/%v %v", s.Port, s.Protocol, s.Name)
-		//}
+func (r *Result) PrintJSON() {
+	for _, h := range r.Hosts {
+		r.Logger.Debugf("working on host: %v", h)
+		b, err := json.Marshal(h)
+		if err != nil {
+			r.Logger.Error(err)
+		}
+		fmt.Println(string(b))
 	}
 }
 

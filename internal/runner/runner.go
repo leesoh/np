@@ -58,7 +58,11 @@ func (r *Runner) LoadScans() {
 	for _, f := range r.Files {
 		ns := scan.NewNmapScan(r.Logger)
 		ns.Unmarshal(f)
-		res.AddNmapHost(ns)
+		res.AddNmapHosts(ns)
 	}
-	res.Print()
+	if r.Options.JSON {
+		res.PrintJSON()
+	} else {
+		res.Print()
+	}
 }
