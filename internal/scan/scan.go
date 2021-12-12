@@ -2,13 +2,12 @@ package scan
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 
 	"github.com/Masterminds/log-go/impl/cli"
 )
 
-type Scan struct {
+type NmapScan struct {
 	Logger           *cli.Logger
 	XMLName          xml.Name `xml:"nmaprun"`
 	Text             string   `xml:",chardata"`
@@ -102,18 +101,14 @@ type Scan struct {
 	} `xml:"runstats"`
 }
 
-func New(logger *cli.Logger) *Scan {
-	return &Scan{Logger: logger}
+func NewNmapScan(logger *cli.Logger) *NmapScan {
+	return &NmapScan{Logger: logger}
 }
 
-func (s *Scan) Unmarshal(f string) {
+func (n *NmapScan) Unmarshal(f string) {
 	b, err := ioutil.ReadFile(f)
 	if err != nil {
-		s.Logger.Errorf("error unmarshaling scan: %v", err)
+		n.Logger.Errorf("error unmarshaling scan: %v", err)
 	}
-	err = xml.Unmarshal(b, &s)
-}
-
-func (s *Scan) Print() {
-	fmt.Println(s)
+	err = xml.Unmarshal(b, &n)
 }

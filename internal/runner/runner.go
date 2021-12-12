@@ -6,6 +6,7 @@ import (
 
 	"github.com/Masterminds/log-go"
 	"github.com/Masterminds/log-go/impl/cli"
+	"github.com/leesoh/np/internal/result"
 	"github.com/leesoh/np/internal/scan"
 )
 
@@ -53,9 +54,11 @@ func (r *Runner) GetScanFiles() {
 }
 
 func (r *Runner) LoadScans() {
+	res := result.New(r.Logger)
 	for _, f := range r.Files {
-		sc := scan.New(r.Logger)
-		sc.Unmarshal(f)
-		sc.Print()
+		ns := scan.NewNmapScan(r.Logger)
+		ns.Unmarshal(f)
+		res.AddNmapHost(ns)
 	}
+	res.Print()
 }
