@@ -13,22 +13,22 @@ func (r *Result) Print() {
 		if h.Name != "" {
 			fmt.Printf("%v (%v)\n", h.Name, h.IP)
 		}
-		for _, t := range h.TCPPorts {
-			tp := fmt.Sprintf("%v/%v %v", t.Number, "tcp", t.Name)
-			if t.Product != "" {
-				tp = fmt.Sprintf("%v %v", tp, t.Product)
-				if t.Version != "" {
-					tp = fmt.Sprintf("%v %v", tp, t.Version)
-					if t.ExtraInfo != "" {
-						tp = fmt.Sprintf("%v (%v)", tp, t.ExtraInfo)
+		for k, v := range h.TCPPorts {
+			tp := fmt.Sprintf("%v/%v %v", k, "tcp", v.Name)
+			if v.Product != "" {
+				tp = fmt.Sprintf("%v %v", tp, v.Product)
+				if v.Version != "" {
+					tp = fmt.Sprintf("%v %v", tp, v.Version)
+					if v.ExtraInfo != "" {
+						tp = fmt.Sprintf("%v (%v)", tp, v.ExtraInfo)
 					}
 				}
 			}
 			fmt.Println(tp)
 		}
-		for _, u := range h.UDPPorts {
-			fmt.Printf("%v/%v %v\n", u.Number, "udp", u.Name)
-		}
+		//for _, u := range h.UDPPorts {
+		//	fmt.Printf("%v/%v %v\n", u.Number, "udp", u.Name)
+		//}
 		fmt.Println()
 	}
 }

@@ -176,8 +176,8 @@ func (s *Scan) GetNmapIP(h Host) net.IP {
 	return nil
 }
 
-func (s *Scan) GetNmapPorts(h Host, protocol string) []result.Port {
-	var ports []result.Port
+func (s *Scan) GetNmapPorts(h Host, protocol string) map[int]*result.Port {
+	ports := make(map[int]*result.Port)
 	for _, pp := range h.Ports {
 		if pp.State.State == "open" && pp.Protocol == protocol {
 			number, err := strconv.Atoi(pp.Portid)
@@ -186,12 +186,11 @@ func (s *Scan) GetNmapPorts(h Host, protocol string) []result.Port {
 			}
 			port := &result.Port{
 				Name:      pp.Service.Name,
-				Number:    number,
 				Product:   pp.Service.Product,
 				Version:   pp.Service.Version,
 				ExtraInfo: pp.Service.Extrainfo,
 			}
-			ports = append(ports, *port)
+			ports[number] = port
 			s.Logger.Debugf("found ports: %v", port)
 		}
 	}
