@@ -48,6 +48,14 @@ func (r *Runner) Run() {
 			s.ParseNmap()
 		}
 	}
+	if r.Options.Host != "" {
+		result.PrintHost(r.Options.Host)
+		return
+	}
+	if r.Options.Hosts {
+		result.PrintAlive()
+		return
+	}
 	if r.Options.JSON {
 		result.PrintJSON()
 	} else {
