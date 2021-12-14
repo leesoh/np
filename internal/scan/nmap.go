@@ -111,10 +111,13 @@ type State struct {
 }
 
 type Service struct {
-	Text   string `xml:",chardata"`
-	Name   string `xml:"name,attr"`
-	Method string `xml:"method,attr"`
-	Conf   string `xml:"conf,attr"`
+	Conf      string `xml:"conf,attr"`
+	Method    string `xml:"method,attr"`
+	Name      string `xml:"name,attr"`
+	Product   string `xml:"product,attr"`
+	Version   string `xml:"version,attr"`
+	Extrainfo string `xml:"extrainfo,attr"`
+	Text      string `xml:",chardata"`
 }
 
 type Times struct {
@@ -147,6 +150,7 @@ func (s *Scan) ParseNmap() {
 			Name:     s.GetNmapHostname(hh),
 			IP:       s.GetNmapIP(hh),
 			TCPPorts: s.GetNmapPorts(hh, "tcp"),
+			UDPPorts: s.GetNmapPorts(hh, "udp"),
 		}
 		s.Result.AddHost(h)
 		s.Logger.Debugf("added host: %v", h)
@@ -181,8 +185,11 @@ func (s *Scan) GetNmapPorts(h Host, protocol string) []result.Port {
 				s.Logger.Errorf("error casting port: %v", pp.Portid)
 			}
 			port := &result.Port{
-				Name:   pp.Service.Name,
-				Number: number,
+				Name:      pp.Service.Name,
+				Number:    number,
+				Product:   pp.Service.Product,
+				Version:   pp.Service.Version,
+				ExtraInfo: pp.Service.Extrainfo,
 			}
 			ports = append(ports, *port)
 			s.Logger.Debugf("found ports: %v", port)

@@ -19,90 +19,55 @@ type Host struct {
 }
 
 type Port struct {
-	Number int    `json:"port,omitempty"`
-	Name   string `json:"name,omitempty"`
+	Number    int    `json:"port,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Product   string `json:"product,omitempty"`
+	Version   string `json:"version,omitempty"`
+	ExtraInfo string `json:"extra_info,omitempty"`
 }
 
-func (p *Port) addNameIfBlank(name string) {
-	if p.Name == "" && name != "" {
-		p.Name = name
+func (p *Port) merge(np Port) {
+	if p.Name == "" && np.Name != "" {
+		p.Name = np.Name
 	}
-}
-
-func (h *Host) hasIP(ip net.IP) bool {
-	return h.IP.Equal(ip)
+	if p.Product == "" && np.Product != "" {
+		p.Product = np.Product
+	}
+	if p.ExtraInfo == "" && np.ExtraInfo != "" {
+		p.ExtraInfo = np.ExtraInfo
+	}
+	if p.Version == "" && np.Version != "" {
+		p.Version = np.Version
+	}
 }
 
 func New(logger *cli.Logger) *Result {
 	return &Result{Logger: logger}
 }
 
-//If hostname or IP is a match, merge. If hostname is blank, update If IP is
-//missing, add it For each service, match on port and protocol If name is
-//blank, add it.
+// TODO: Refactor this mess
 func (r *Result) AddHost(new *Host) {
+	r.Logger.Debugf("processing host: %+v", new)
 	for hostIndex, hh := range r.Hosts {
+		// host is a match
 		if hh.IP.Equal(new.IP) {
+			// check all the new ports for a match
 			for _, tt := range new.TCPPorts {
+				// against all the old ports
 				for _, ht := range hh.TCPPorts {
+					// port is a match
 					if ht.Number == tt.Number {
-						ht.addNameIfBlank(tt.Name)
+						r.Logger.Debugf("current: %v new: %v", ht, tt)
+						ht.merge(tt)
 						return
 					}
 				}
+				// new port, add it
 				r.Hosts[hostIndex].TCPPorts = append(r.Hosts[hostIndex].TCPPorts, tt)
 			}
 			return
 		}
 	}
+	// we didn't find an existing host, add this one
 	r.Hosts = append(r.Hosts, new)
-	//if hh.Name == "" && new.Name != "" {
-	//	hh.Name = new.Name
-	//	r.Logger.Debugf("added hostname %v to ip %v", new.Name, hh.IP.String())
-	//}
-	//for newPort, newName := range new.TCPPorts {
-	//	if r.hasPort(newPort, hh.TCPPorts) {
-	//		if hh.TCPPorts[newPort] == nil && new.TCPPorts[newPort] != nil {
-	//			hh.TCPPorts[newPort] = new.TCPPorts[newPort]
-	//		}
-	//	} else {
-	//		hh.TCPPorts[newPort] = newName
-	//	}
-	//}
-	//for newPort, newName := range new.UDPPorts {
-	//	if r.hasPort(newPort, hh.UDPPorts) {
-	//		if hh.UDPPorts[newPort] == nil && new.UDPPorts[newPort] != nil {
-	//			hh.UDPPorts[newPort] = new.UDPPorts[newPort]
-	//		}
-	//	} else {
-	//		hh.UDPPorts[newPort] = newName
-	//	}
-	//}
 }
-
-func (r *Result) hostExists(h *Host) bool {
-	for _, hh := range r.Hosts {
-		if hh.IP.Equal(h.IP) {
-			r.Logger.Debugf("host exists: %v", h.IP)
-			return true
-		}
-	}
-	return false
-}
-
-//func (r *Result) mergeHost(new *Host) {
-//	for k, existingHost := range r.Hosts {
-//		if existingHost.IP.Equal(new.IP) {
-//			// update blank name
-//			if existingHost.Name == "" && new.Name != "" {
-//				r.Hosts[k].Name = new.Name
-//			}
-//			//update missing port
-//			for _, newTCPPort := range new.TCPPorts {
-//				if existingHost.hasTCPPort(newTCPPort) {
-//					existingHost.updatePort(newTCPPort)
-//				}
-//			}
-//		}
-//	}
-//}
