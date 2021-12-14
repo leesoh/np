@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"strings"
+	"text/tabwriter"
 )
 
 func (r *Result) Print() {
@@ -13,24 +15,45 @@ func (r *Result) Print() {
 		if h.Name != "" {
 			fmt.Printf("%v (%v)\n", h.Name, h.IP)
 		}
-		for k, v := range h.TCPPorts {
-			tp := fmt.Sprintf("%v/%v %v", k, "tcp", v.Name)
-			if v.Product != "" {
-				tp = fmt.Sprintf("%v %v", tp, v.Product)
-				if v.Version != "" {
-					tp = fmt.Sprintf("%v %v", tp, v.Version)
-					if v.ExtraInfo != "" {
-						tp = fmt.Sprintf("%v (%v)", tp, v.ExtraInfo)
-					}
-				}
-			}
-			fmt.Println(tp)
-		}
-		//for _, u := range h.UDPPorts {
-		//	fmt.Printf("%v/%v %v\n", u.Number, "udp", u.Name)
-		//}
+		r.portPrinter(h.TCPPorts)
+		r.portPrinter(h.UDPPorts)
 		fmt.Println()
 	}
+}
+
+func (r *Result) portPrinter(p map[int]*Port) {
+	//	PORT      STATE    SERVICE
+	//19/tcp    filtered chargen
+	//22/tcp    open     ssh
+	//25/tcp    filtered smtp
+	//80/tcp    open     http
+	//135/tcp   filtered msrpc
+	//139/tcp   filtered netbios-ssn
+	//445/tcp   filtered microsoft-ds
+	//5631/tcp  filtered pcanywheredata
+	//9929/tcp  open     nping-echo
+	//31337/tcp open     Elite
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 2, 2, '\t', 0)
+	fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
+	for k, v := range p {
+		line := fmt.Sprintf("%v\t%v\t%v\t%v", k, v.Name, v.Product, v.Version)
+		fmt.Fprintln(writer, line)
+		writer.Flush()
+	}
+	//for k, v := range p {
+	//	tp := fmt.Sprintf("%v/%v %v", k, "tcp", v.Name)
+	//	if v.Product != "" {
+	//		tp = fmt.Sprintf("%v %v", tp, v.Product)
+	//		if v.Version != "" {
+	//			tp = fmt.Sprintf("%v %v", tp, v.Version)
+	//			if v.ExtraInfo != "" {
+	//				tp = fmt.Sprintf("%v (%v)", tp, v.ExtraInfo)
+	//			}
+	//		}
+	//	}
+	//	fmt.Println(tp)
+	//}
 }
 
 func (r *Result) PrintJSON() {
