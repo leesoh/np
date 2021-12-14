@@ -74,6 +74,7 @@ func (r *Result) PrintAlive() {
 }
 
 func (r *Result) PrintByService(service string) {
+	hm := make(map[*Host]struct{})
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
 			continue
@@ -81,9 +82,18 @@ func (r *Result) PrintByService(service string) {
 		for _, v := range hh.TCPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", v.Name)
-				r.PrintHost(hh)
+				hm[hh] = struct{}{}
 			}
 		}
+		for _, v := range hh.UDPPorts {
+			if matched, _ := regexp.MatchString(service, v.Name); matched {
+				r.Logger.Debugf("matched: %v", v.Name)
+				hm[hh] = struct{}{}
+			}
+		}
+	}
+	for k := range hm {
+		r.PrintHost(k)
 	}
 }
 
