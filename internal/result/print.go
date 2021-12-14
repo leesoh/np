@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"regexp"
+	"sort"
 	"strings"
 	"text/tabwriter"
 )
@@ -30,9 +32,9 @@ func (r *Result) Print() {
 	}
 }
 
-func (r *Result) PrintHost(host string) {
+func (r *Result) PrintHost(ip net.IP) {
 	for _, h := range r.Hosts {
-		if h.Name == host || h.IP.String() == host {
+		if h.IP.Equal(ip) {
 			if r.allPortsClosed(h) {
 				continue
 			}
@@ -64,6 +66,72 @@ func (r *Result) PrintAlive() {
 	}
 }
 
+func (r *Result) PrintByService(service string) {
+	for _, h := range r.Hosts {
+		if r.allPortsClosed(h) {
+			continue
+		}
+		for _, v := range h.TCPPorts {
+			if matched, _ := regexp.MatchString(service, v.Name); matched {
+				r.Logger.Debugf("matched: %v", v.Name)
+				r.PrintHost(h.IP)
+			}
+		}
+	}
+}
+
+func (r *Result) PrintServices() {
+	for _, h := range r.Hosts {
+		for _, v := range h.TCPPorts {
+			r.printIfValue(v.Name)
+		}
+	}
+}
+
+func (r *Result) PrintByPort(port int) {
+	for _, h := range r.Hosts {
+		if r.allPortsClosed(h) {
+			continue
+		}
+		if _, hasPort := h.TCPPorts[port]; hasPort {
+			r.Logger.Debugf("%v has port: %v", h.Name, port)
+			r.PrintHost(h.IP)
+		}
+		if _, hasPort := h.UDPPorts[port]; hasPort {
+			r.Logger.Debugf("%v has port: %v", h.Name, port)
+			r.PrintHost(h.IP)
+		}
+	}
+}
+
+func (r *Result) PrintPorts() {
+	p := make(map[int]struct{})
+	for _, h := range r.Hosts {
+		for k, _ := range h.TCPPorts {
+			p[k] = struct{}{}
+		}
+		for k, _ := range h.UDPPorts {
+			p[k] = struct{}{}
+		}
+	}
+	var keys []int
+	for k := range p {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	var ps strings.Builder
+	for _, k := range keys {
+		s := fmt.Sprintf("%s,", fmt.Sprint(k))
+		ps.WriteString(s)
+	}
+	fmt.Println(strings.TrimSuffix(ps.String(), ","))
+}
+
+func (r *Result) printIfValue(s string) {
+	if s != "" {
+		fmt.Println(s)
+	}
+}
 func (r *Result) portPrinter(writer *tabwriter.Writer, protocol string, p map[int]*Port) {
 	for k, v := range p {
 		line := fmt.Sprintf("%v/%v\t%v\t%v\t%v", k, protocol, v.Name, v.Product, v.Version)

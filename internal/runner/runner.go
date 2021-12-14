@@ -3,6 +3,7 @@ package runner
 import (
 	"io/fs"
 	"io/ioutil"
+	"net"
 	"path/filepath"
 
 	"github.com/Masterminds/log-go"
@@ -49,11 +50,31 @@ func (r *Runner) Run() {
 		}
 	}
 	if r.Options.Host != "" {
-		result.PrintHost(r.Options.Host)
+		ip := net.ParseIP(r.Options.Host)
+		if ip == nil {
+			return
+		}
+		result.PrintHost(ip)
 		return
 	}
 	if r.Options.Hosts {
 		result.PrintAlive()
+		return
+	}
+	if r.Options.Service != "" {
+		result.PrintByService(r.Options.Service)
+		return
+	}
+	if r.Options.Services {
+		result.PrintServices()
+		return
+	}
+	if r.Options.Port != 0 {
+		result.PrintByPort(r.Options.Port)
+		return
+	}
+	if r.Options.Ports {
+		result.PrintPorts()
 		return
 	}
 	if r.Options.JSON {
