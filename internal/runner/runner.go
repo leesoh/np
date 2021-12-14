@@ -38,49 +38,54 @@ func New(options *Options) *Runner {
 
 func (r *Runner) Run() {
 	r.GetScanFiles()
-	result := result.New(r.Logger)
+	res := result.New(r.Logger)
 	for _, ff := range r.Files {
 		b, err := ioutil.ReadFile(ff)
 		if err != nil {
 			r.Logger.Errorf("error reading file: %v", err)
 		}
-		s := scan.New(b, r.Logger, result)
+		s := scan.New(b, r.Logger, res)
 		if s.IsNmap() {
 			s.ParseNmap()
 		}
 	}
 	if r.Options.Host != "" {
 		ip := net.ParseIP(r.Options.Host)
+		h := &result.Host{}
+		r.Logger.Debugf("host option with ip: %+v", ip)
 		if ip == nil {
-			return
+			h.Name = r.Options.Host
+		} else {
+			h.IP = ip
 		}
-		result.PrintHost(ip)
+		r.Logger.Debugf("printing host: %v", h)
+		res.PrintHost(h)
 		return
 	}
 	if r.Options.Hosts {
-		result.PrintAlive()
+		res.PrintAlive()
 		return
 	}
 	if r.Options.Service != "" {
-		result.PrintByService(r.Options.Service)
+		res.PrintByService(r.Options.Service)
 		return
 	}
 	if r.Options.Services {
-		result.PrintServices()
+		res.PrintServices()
 		return
 	}
 	if r.Options.Port != 0 {
-		result.PrintByPort(r.Options.Port)
+		res.PrintByPort(r.Options.Port)
 		return
 	}
 	if r.Options.Ports {
-		result.PrintPorts()
+		res.PrintPorts()
 		return
 	}
 	if r.Options.JSON {
-		result.PrintJSON()
+		res.PrintJSON()
 	} else {
-		result.Print()
+		res.Print()
 	}
 }
 

@@ -12,44 +12,51 @@ import (
 )
 
 func (r *Result) Print() {
-	for _, h := range r.Hosts {
-		r.Logger.Debugf("working on host: %v", h)
-		if r.allPortsClosed(h) {
+	for _, hh := range r.Hosts {
+		r.Logger.Debugf("working on host: %v", hh)
+		if r.allPortsClosed(hh) {
 			continue
 		}
-		if h.Name != "" {
-			fmt.Printf("%v (%v)\n", h.Name, h.IP)
+		if hh.Name != "" {
+			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
 		} else {
-			fmt.Printf("%v\n", h.IP)
+			fmt.Printf("%v\n", hh.IP)
 		}
 
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 		fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
-		r.portPrinter(writer, "tcp", h.TCPPorts)
-		r.portPrinter(writer, "udp", h.UDPPorts)
+		r.portPrinter(writer, "tcp", hh.TCPPorts)
+		r.portPrinter(writer, "udp", hh.UDPPorts)
 		writer.Flush()
 		fmt.Println()
 	}
 }
 
-func (r *Result) PrintHost(ip net.IP) {
-	for _, h := range r.Hosts {
-		if h.IP.Equal(ip) {
-			if r.allPortsClosed(h) {
+func (r *Result) PrintHost(h *Host) {
+	for _, hh := range r.Hosts {
+		if hh.IP.Equal(h.IP) {
+			if r.allPortsClosed(hh) {
 				continue
 			}
-			if h.Name != "" {
-				fmt.Printf("%v (%v)\n", h.Name, h.IP)
+			if hh.Name != "" {
+				fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
 			} else {
-				fmt.Printf("%v\n", h.IP)
+				fmt.Printf("%v\n", hh.IP)
 			}
-			writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-			fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
-			r.portPrinter(writer, "tcp", h.TCPPorts)
-			r.portPrinter(writer, "udp", h.UDPPorts)
-			writer.Flush()
-			fmt.Println()
+		} else if hh.Name == h.Name {
+			if r.allPortsClosed(hh) {
+				continue
+			}
+			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
+		} else {
+			continue
 		}
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+		fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
+		r.portPrinter(writer, "tcp", hh.TCPPorts)
+		r.portPrinter(writer, "udp", hh.UDPPorts)
+		writer.Flush()
+		fmt.Println()
 	}
 }
 
@@ -67,39 +74,39 @@ func (r *Result) PrintAlive() {
 }
 
 func (r *Result) PrintByService(service string) {
-	for _, h := range r.Hosts {
-		if r.allPortsClosed(h) {
+	for _, hh := range r.Hosts {
+		if r.allPortsClosed(hh) {
 			continue
 		}
-		for _, v := range h.TCPPorts {
+		for _, v := range hh.TCPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", v.Name)
-				r.PrintHost(h.IP)
+				r.PrintHost(hh)
 			}
 		}
 	}
 }
 
 func (r *Result) PrintServices() {
-	for _, h := range r.Hosts {
-		for _, v := range h.TCPPorts {
+	for _, hh := range r.Hosts {
+		for _, v := range hh.TCPPorts {
 			r.printIfValue(v.Name)
 		}
 	}
 }
 
 func (r *Result) PrintByPort(port int) {
-	for _, h := range r.Hosts {
-		if r.allPortsClosed(h) {
+	for _, hh := range r.Hosts {
+		if r.allPortsClosed(hh) {
 			continue
 		}
-		if _, hasPort := h.TCPPorts[port]; hasPort {
-			r.Logger.Debugf("%v has port: %v", h.Name, port)
-			r.PrintHost(h.IP)
+		if _, hasPort := hh.TCPPorts[port]; hasPort {
+			r.Logger.Debugf("%v has port: %v", hh.Name, port)
+			r.PrintHost(hh)
 		}
-		if _, hasPort := h.UDPPorts[port]; hasPort {
-			r.Logger.Debugf("%v has port: %v", h.Name, port)
-			r.PrintHost(h.IP)
+		if _, hasPort := hh.UDPPorts[port]; hasPort {
+			r.Logger.Debugf("%v has port: %v", hh.Name, port)
+			r.PrintHost(hh)
 		}
 	}
 }
@@ -140,12 +147,12 @@ func (r *Result) portPrinter(writer *tabwriter.Writer, protocol string, p map[in
 }
 
 func (r *Result) PrintJSON() {
-	for _, h := range r.Hosts {
-		if r.allPortsClosed(h) {
+	for _, hh := range r.Hosts {
+		if r.allPortsClosed(hh) {
 			continue
 		}
-		r.Logger.Debugf("working on host: %v", h)
-		b, err := json.Marshal(h)
+		r.Logger.Debugf("working on host: %v", hh)
+		b, err := json.Marshal(hh)
 		if err != nil {
 			r.Logger.Error(err)
 		}
@@ -155,8 +162,8 @@ func (r *Result) PrintJSON() {
 
 func (r *Result) PrintableIPList(ips []net.IP) string {
 	var ipList strings.Builder
-	for _, i := range ips {
-		fmt.Fprintf(&ipList, "%v,", i)
+	for _, ii := range ips {
+		fmt.Fprintf(&ipList, "%v,", ii)
 	}
 	return strings.TrimSuffix(ipList.String(), ",")
 }
