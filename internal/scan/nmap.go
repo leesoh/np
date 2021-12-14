@@ -149,6 +149,7 @@ func (s *Scan) ParseNmap() {
 			TCPPorts: s.GetNmapPorts(hh, "tcp"),
 		}
 		s.Result.AddHost(h)
+		s.Logger.Debugf("added host: %v", h)
 	}
 }
 
@@ -171,16 +172,17 @@ func (s *Scan) GetNmapIP(h Host) net.IP {
 	return nil
 }
 
-func (s *Scan) GetNmapPorts(h Host, protocol string) []map[int]string {
-	var ports []map[int]string
+func (s *Scan) GetNmapPorts(h Host, protocol string) []result.Port {
+	var ports []result.Port
 	for _, pp := range h.Ports {
 		if pp.State.State == "open" && pp.Protocol == protocol {
-			port_num, err := strconv.Atoi(pp.Portid)
+			number, err := strconv.Atoi(pp.Portid)
 			if err != nil {
 				s.Logger.Errorf("error casting port: %v", pp.Portid)
 			}
-			port := &map[int]string{
-				port_num: pp.Service.Name,
+			port := &result.Port{
+				Name:   pp.Service.Name,
+				Number: number,
 			}
 			ports = append(ports, *port)
 			s.Logger.Debugf("found ports: %v", port)

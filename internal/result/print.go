@@ -14,15 +14,12 @@ func (r *Result) Print() {
 			fmt.Printf("%v (%v)\n", h.Name, h.IP)
 		}
 		for _, t := range h.TCPPorts {
-			for k, v := range t {
-				fmt.Printf("\t%v/%v %v\n", k, "tcp", v)
-			}
+			fmt.Printf("%v/%v %v\n", t.Number, "tcp", t.Name)
 		}
 		for _, u := range h.UDPPorts {
-			for k, v := range u {
-				fmt.Printf("\t%v/%v %v\n", k, "udp", v)
-			}
+			fmt.Printf("%v/%v %v\n", u.Number, "udp", u.Name)
 		}
+		fmt.Println()
 	}
 }
 
