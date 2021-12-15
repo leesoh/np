@@ -8,7 +8,6 @@ import (
 
 	"github.com/Masterminds/log-go"
 	"github.com/Masterminds/log-go/impl/cli"
-	"github.com/leesoh/np/internal/parse"
 	"github.com/leesoh/np/internal/result"
 	"github.com/leesoh/np/internal/scan"
 )
@@ -17,7 +16,6 @@ type Runner struct {
 	Files   []string
 	Logger  *cli.Logger
 	Options *Options
-	Parser  *parse.Parser
 }
 
 func New(options *Options) *Runner {
@@ -27,11 +25,9 @@ func New(options *Options) *Runner {
 	} else {
 		logger.Level = log.FatalLevel
 	}
-	parser := parse.NewParser(logger)
 	runner := &Runner{
 		Logger:  logger,
 		Options: options,
-		Parser:  parser,
 	}
 	return runner
 }
@@ -80,7 +76,7 @@ func (r *Runner) Run() {
 		return
 	}
 	if r.Options.Ports {
-		res.PrintPorts()
+		res.PrintPortSummary()
 		return
 	}
 	if r.Options.JSON {

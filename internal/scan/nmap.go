@@ -147,17 +147,17 @@ func (s *Scan) unmarshalNmap() {
 func (s *Scan) ParseNmap() {
 	for _, hh := range s.Nmap.Hosts {
 		h := &result.Host{
-			Name:     s.GetNmapHostname(hh),
-			IP:       s.GetNmapIP(hh),
-			TCPPorts: s.GetNmapPorts(hh, "tcp"),
-			UDPPorts: s.GetNmapPorts(hh, "udp"),
+			Name:     s.getNmapHostname(hh),
+			IP:       s.getNmapIP(hh),
+			TCPPorts: s.getNmapPorts(hh, "tcp"),
+			UDPPorts: s.getNmapPorts(hh, "udp"),
 		}
 		s.Result.AddHost(h)
 		s.Logger.Debugf("added host: %v", h)
 	}
 }
 
-func (s *Scan) GetNmapHostname(h Host) string {
+func (s *Scan) getNmapHostname(h Host) string {
 	for _, hh := range h.Hostnames {
 		s.Logger.Debugf("getting hostname: %v", hh.Name)
 		if hh.Type == "user" {
@@ -167,7 +167,7 @@ func (s *Scan) GetNmapHostname(h Host) string {
 	return ""
 }
 
-func (s *Scan) GetNmapIP(h Host) net.IP {
+func (s *Scan) getNmapIP(h Host) net.IP {
 	ip := net.ParseIP(h.Address.Addr)
 	if ip != nil {
 		s.Logger.Debugf("added IP: %v", ip)
@@ -176,7 +176,7 @@ func (s *Scan) GetNmapIP(h Host) net.IP {
 	return nil
 }
 
-func (s *Scan) GetNmapPorts(h Host, protocol string) map[int]*result.Port {
+func (s *Scan) getNmapPorts(h Host, protocol string) map[int]*result.Port {
 	ports := make(map[int]*result.Port)
 	for _, pp := range h.Ports {
 		if pp.State.State == "open" && pp.Protocol == protocol {

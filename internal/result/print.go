@@ -10,6 +10,7 @@ import (
 	"text/tabwriter"
 )
 
+// Print prints all hosts and the details of their open ports
 func (r *Result) Print() {
 	for _, hh := range r.Hosts {
 		r.Logger.Debugf("working on host: %v", hh)
@@ -21,16 +22,10 @@ func (r *Result) Print() {
 		} else {
 			fmt.Printf("%v\n", hh.IP)
 		}
-
-		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-		fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
-		r.portPrinter(writer, "tcp", hh.TCPPorts)
-		r.portPrinter(writer, "udp", hh.UDPPorts)
-		writer.Flush()
-		fmt.Println()
 	}
 }
 
+// PrintHost prints the full host details based on a partial host request
 func (r *Result) PrintHost(h *Host) {
 	for _, hh := range r.Hosts {
 		if hh.IP.Equal(h.IP) {
@@ -52,13 +47,29 @@ func (r *Result) PrintHost(h *Host) {
 		} else {
 			continue
 		}
-		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-		fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
-		r.portPrinter(writer, "tcp", hh.TCPPorts)
-		r.portPrinter(writer, "udp", hh.UDPPorts)
-		writer.Flush()
-		fmt.Println()
+		r.portPrinter(hh)
 	}
+}
+
+func (r *Result) portPrinter(h *Host) {
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+	fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
+	for k, v := range h.TCPPorts {
+		if v.Name == "tcpwrapped" {
+			continue
+		}
+		line := fmt.Sprintf("%v/%v\t%v\t%v\t%v", k, "tcp", v.Name, v.Product, v.Version)
+		fmt.Fprintln(writer, line)
+	}
+	for k, v := range h.UDPPorts {
+		if v.Name == "tcpwrapped" {
+			continue
+		}
+		line := fmt.Sprintf("%v/%v\t%v\t%v\t%v", k, "udp", v.Name, v.Product, v.Version)
+		fmt.Fprintln(writer, line)
+	}
+	writer.Flush()
+	fmt.Println()
 }
 
 func (r *Result) PrintAlive() {
@@ -129,7 +140,7 @@ func (r *Result) PrintByPort(port int) {
 	}
 }
 
-func (r *Result) PrintPorts() {
+func (r *Result) PrintPortSummary() {
 	p := make(map[int]struct{})
 	for _, h := range r.Hosts {
 		for k, _ := range h.TCPPorts {
@@ -151,15 +162,6 @@ func (r *Result) PrintPorts() {
 func (r *Result) printIfValue(s string) {
 	if s != "" {
 		fmt.Println(s)
-	}
-}
-func (r *Result) portPrinter(writer *tabwriter.Writer, protocol string, p map[int]*Port) {
-	for k, v := range p {
-		if v.Name == "tcpwrapped" {
-			continue
-		}
-		line := fmt.Sprintf("%v/%v\t%v\t%v\t%v", k, protocol, v.Name, v.Product, v.Version)
-		fmt.Fprintln(writer, line)
 	}
 }
 
