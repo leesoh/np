@@ -2,6 +2,8 @@ package runner
 
 import (
 	"flag"
+	"strconv"
+	"strings"
 )
 
 type Options struct {
@@ -9,7 +11,7 @@ type Options struct {
 	Host     string
 	Hosts    bool
 	Path     string
-	Port     int
+	Port     []int
 	Ports    bool
 	Service  string
 	Services bool
@@ -22,11 +24,21 @@ func ParseOptions() *Options {
 	flag.StringVar(&options.Host, "host", "", "Show results for specified host")
 	flag.BoolVar(&options.Hosts, "hosts", false, "Print alive hosts")
 	flag.StringVar(&options.Path, "path", ".", "Path to scan file")
-	flag.IntVar(&options.Port, "port", 0, "Display hosts with matching port")
+	port := flag.String("port", "", "Display hosts with matching port(s)")
 	flag.BoolVar(&options.Ports, "ports", false, "Print all ports")
 	flag.StringVar(&options.Service, "service", "", "Display hosts with matching service name")
 	flag.BoolVar(&options.Services, "services", false, "Print all services")
 	flag.BoolVar(&options.Verbose, "verbose", false, "Display verbose output")
 	flag.Parse()
+	if *port != "" {
+		pl := strings.Split(*port, ",")
+		for _, pp := range pl {
+			pi, err := strconv.Atoi(pp)
+			if err != nil {
+				continue
+			}
+			options.Port = append(options.Port, pi)
+		}
+	}
 	return options
 }

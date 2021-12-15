@@ -70,7 +70,7 @@ func (r *Runner) Run() {
 		res.PrintServices()
 		return
 	}
-	if r.Options.Port != 0 {
+	if r.Options.Port != nil {
 		res.PrintByPort(r.Options.Port)
 		r.Logger.Debugf("printed by port")
 		return
@@ -83,6 +83,7 @@ func (r *Runner) Run() {
 		res.PrintJSON()
 		return
 	}
+	r.Logger.Debugf("no options selected, printing default")
 	res.Print()
 }
 

@@ -13,19 +13,11 @@ import (
 // Print prints all hosts and the details of their open ports
 func (r *Result) Print() {
 	for _, hh := range r.Hosts {
-		r.Logger.Debugf("working on host: %v", hh)
-		if r.allPortsClosed(hh) {
-			continue
-		}
-		if hh.Name != "" {
-			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
-		} else {
-			fmt.Printf("%v\n", hh.IP)
-		}
+		r.PrintHost(hh)
 	}
 }
 
-// PrintHost prints the full host details based on a partial host request
+// PrintHost prints the full host details for a given host
 func (r *Result) PrintHost(h *Host) {
 	for _, hh := range r.Hosts {
 		if hh.IP.Equal(h.IP) {
@@ -124,18 +116,20 @@ func (r *Result) PrintServices() {
 	}
 }
 
-func (r *Result) PrintByPort(port int) {
+func (r *Result) PrintByPort(port []int) {
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
 			continue
 		}
-		if _, hasPort := hh.TCPPorts[port]; hasPort {
-			r.Logger.Debugf("%v has port: %v", hh.Name, port)
-			r.PrintHost(hh)
-		}
-		if _, hasPort := hh.UDPPorts[port]; hasPort {
-			r.Logger.Debugf("%v has port: %v", hh.Name, port)
-			r.PrintHost(hh)
+		for _, pp := range port {
+			if _, hasPort := hh.TCPPorts[pp]; hasPort {
+				r.Logger.Debugf("%v has pp: %v", hh.Name, pp)
+				fmt.Printf("%v:%v\n", hh.IP, pp)
+			}
+			if _, hasPort := hh.UDPPorts[pp]; hasPort {
+				r.Logger.Debugf("%v has pp: %v", hh.Name, pp)
+				fmt.Printf("%v:%v\n", hh.IP, pp)
+			}
 		}
 	}
 }
@@ -166,17 +160,11 @@ func (r *Result) printIfValue(s string) {
 }
 
 func (r *Result) PrintJSON() {
-	for _, hh := range r.Hosts {
-		if r.allPortsClosed(hh) {
-			continue
-		}
-		r.Logger.Debugf("working on host: %v", hh)
-		b, err := json.Marshal(hh)
-		if err != nil {
-			r.Logger.Error(err)
-		}
-		fmt.Println(string(b))
+	b, err := json.MarshalIndent(r.Hosts, "", "  ")
+	if err != nil {
+		r.Logger.Error(err)
 	}
+	fmt.Println(string(b))
 }
 
 func (r *Result) PrintableIPList(ips []net.IP) string {
