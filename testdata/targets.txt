@@ -1,0 +1,2 @@
+scanme.nmap.org
+facebook.com

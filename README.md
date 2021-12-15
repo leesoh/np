@@ -36,6 +36,10 @@ www.example.com:443 (80.80.21.0)
 $ np -ports [-path /path/to/scans]
 TCP: 80,443,8080,8443
 UDP: 53, 161
+
+# Print full JSON dump
+$ np [-path /path/to/scans] -json
+...
 ```
 
 ## Installation
@@ -46,4 +50,5 @@ go install github.com/leesoh/np/cmd/np@latest
 
 ## Thanks
 
-- [go-nmap](https://github.com/lair-framework/go-nmap) - For making the XML parsing less awful <3
+- [go-nmap](https://github.com/lair-framework/go-nmap) - For making the XML parsing less awful
+- [naabu](https://github.com/projectdiscovery/naabu) - For the beautiful source code

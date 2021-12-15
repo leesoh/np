@@ -6,7 +6,6 @@ import (
 	"net"
 	"os"
 	"regexp"
-	"sort"
 	"strings"
 	"text/tabwriter"
 )
@@ -40,10 +39,12 @@ func (r *Result) PrintHost(h *Host) {
 			}
 			if hh.Name != "" {
 				fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
+				r.Logger.Debugf("printed host with non-blank name: %+v", hh)
 			} else {
 				fmt.Printf("%v\n", hh.IP)
+				r.Logger.Debugf("printed host with blank name: %+v", hh)
 			}
-		} else if hh.Name == h.Name {
+		} else if hh.Name != "" && hh.Name == h.Name {
 			if r.allPortsClosed(hh) {
 				continue
 			}
@@ -98,10 +99,17 @@ func (r *Result) PrintByService(service string) {
 }
 
 func (r *Result) PrintServices() {
+	s := make(map[string]struct{})
 	for _, hh := range r.Hosts {
 		for _, v := range hh.TCPPorts {
-			r.printIfValue(v.Name)
+			if v.Name != "" {
+				s[v.Name] = struct{}{}
+			}
 		}
+	}
+	sorted := sortStringMap(s)
+	for _, ss := range sorted {
+		fmt.Println(ss)
 	}
 }
 
@@ -131,13 +139,9 @@ func (r *Result) PrintPorts() {
 			p[k] = struct{}{}
 		}
 	}
-	var keys []int
-	for k := range p {
-		keys = append(keys, k)
-	}
-	sort.Ints(keys)
+	sorted := sortIntMap(p)
 	var ps strings.Builder
-	for _, k := range keys {
+	for _, k := range sorted {
 		s := fmt.Sprintf("%s,", fmt.Sprint(k))
 		ps.WriteString(s)
 	}
@@ -151,6 +155,9 @@ func (r *Result) printIfValue(s string) {
 }
 func (r *Result) portPrinter(writer *tabwriter.Writer, protocol string, p map[int]*Port) {
 	for k, v := range p {
+		if v.Name == "tcpwrapped" {
+			continue
+		}
 		line := fmt.Sprintf("%v/%v\t%v\t%v\t%v", k, protocol, v.Name, v.Product, v.Version)
 		fmt.Fprintln(writer, line)
 	}

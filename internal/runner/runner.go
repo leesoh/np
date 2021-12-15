@@ -58,8 +58,8 @@ func (r *Runner) Run() {
 		} else {
 			h.IP = ip
 		}
-		r.Logger.Debugf("printing host: %v", h)
 		res.PrintHost(h)
+		r.Logger.Debugf("printed host: %v", h)
 		return
 	}
 	if r.Options.Hosts {
@@ -76,6 +76,7 @@ func (r *Runner) Run() {
 	}
 	if r.Options.Port != 0 {
 		res.PrintByPort(r.Options.Port)
+		r.Logger.Debugf("printed by port")
 		return
 	}
 	if r.Options.Ports {
@@ -84,9 +85,9 @@ func (r *Runner) Run() {
 	}
 	if r.Options.JSON {
 		res.PrintJSON()
-	} else {
-		res.Print()
+		return
 	}
+	res.Print()
 }
 
 // GetScanFiles gathers scan files from the provided path
