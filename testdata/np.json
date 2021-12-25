@@ -1,0 +1,39 @@
+[
+  {
+    "ip": "45.33.32.156",
+    "hostname": "scanme.nmap.org",
+    "tcp_ports": {
+      "22": {
+        "name": "ssh",
+        "product": "OpenSSH",
+        "version": "6.6.1p1 Ubuntu 2ubuntu2.13",
+        "extra_info": "Ubuntu Linux; protocol 2.0"
+      },
+      "31337": {
+        "name": "Elite"
+      },
+      "80": {
+        "name": "http",
+        "product": "Apache httpd",
+        "version": "2.4.7",
+        "extra_info": "(Ubuntu)"
+      },
+      "9929": {
+        "name": "nping-echo",
+        "product": "Nping echo"
+      }
+    }
+  },
+  {
+    "ip": "159.223.119.162",
+    "hostname": "bishopfox.com",
+    "tcp_ports": {
+      "443": {
+        "name": "https"
+      },
+      "80": {
+        "name": "http"
+      }
+    }
+  }
+]

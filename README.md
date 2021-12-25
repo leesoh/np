@@ -1,10 +1,10 @@
 # np
 
-np is a tool for parsing multiple Nmap scans and querying the results.
+np is a tool for parsing multiple Nmap scans and querying the results. It can also import its own JSON results.
 
 ## Usage
 
-The `-json` option will display all hosts, while the other formats will omit hosts with no open ports, or ports that are likely false positives (e.g. `tcpwrapped`).
+The `-json` option will display all hosts with at least one open port, while the other formats will omit ports that are likely false positives (e.g. `tcpwrapped`).
 
 ```sh
 # Parse all scans in the current directory

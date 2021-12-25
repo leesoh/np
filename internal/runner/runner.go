@@ -36,13 +36,21 @@ func (r *Runner) Run() {
 	r.GetScanFiles()
 	res := result.New(r.Logger)
 	for _, ff := range r.Files {
+		r.Logger.Debugf("processing %v", ff)
 		b, err := ioutil.ReadFile(ff)
 		if err != nil {
 			r.Logger.Errorf("error reading file: %v", err)
 		}
 		s := scan.New(b, r.Logger, res)
 		if s.IsNmap() {
+			r.Logger.Debugf("found nmap scan: %s", ff)
 			s.ParseNmap()
+			continue
+		}
+		if s.IsNP() {
+			r.Logger.Debugf("found np scan: %s", ff)
+			s.ParseNP()
+			continue
 		}
 	}
 	if r.Options.Host != "" {
@@ -103,9 +111,13 @@ func (r *Runner) walkScans(path string, d fs.DirEntry, err error) error {
 		return err
 	}
 	r.Logger.Debugf("found file: %v", filepath.Base(path))
-	if filepath.Ext(path) == ".xml" {
+	switch filepath.Ext(path) {
+	case ".xml":
 		r.Files = append(r.Files, path)
-		r.Logger.Debugf("added file: %v", filepath.Base(path))
+		r.Logger.Debugf("added XML file: %v", filepath.Base(path))
+	case ".json":
+		r.Files = append(r.Files, path)
+		r.Logger.Debugf("added JSON file: %v", filepath.Base(path))
 	}
 	return nil
 }

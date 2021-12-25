@@ -128,7 +128,10 @@ type Times struct {
 }
 
 func (s *Scan) IsNmap() bool {
-	s.unmarshalNmap()
+	if err := s.unmarshalNmap(); err != nil {
+		return false
+	}
+	// TODO: I don't think we need this
 	if s.Nmap.Scanner == "nmap" {
 		s.Logger.Debugf("found valid nmap scan")
 		return true
@@ -137,11 +140,13 @@ func (s *Scan) IsNmap() bool {
 	return false
 }
 
-func (s *Scan) unmarshalNmap() {
+func (s *Scan) unmarshalNmap() error {
 	err := xml.Unmarshal(s.Bytes, &s.Nmap)
 	if err != nil {
 		s.Logger.Errorf("error unmarshaling Nmap: %v", err)
+		return err
 	}
+	return nil
 }
 
 func (s *Scan) ParseNmap() {
