@@ -20,6 +20,7 @@ func (s *Scan) IsNP() bool {
 }
 
 func (s *Scan) ParseNP() {
+	// We're importing an old np session so just unpack into results
 	err := json.Unmarshal(s.Bytes, &s.Result.Hosts)
 	if err != nil {
 		s.Logger.Errorf("error unmarshaling np results: %v", err)

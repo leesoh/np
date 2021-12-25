@@ -42,14 +42,15 @@ func (r *Runner) Run() {
 			r.Logger.Errorf("error reading file: %v", err)
 		}
 		s := scan.New(b, r.Logger, res)
-		if s.IsNmap() {
-			r.Logger.Debugf("found nmap scan: %s", ff)
-			s.ParseNmap()
-			continue
-		}
+		// If we don't process this first it will overwrite other scans
 		if s.IsNP() {
 			r.Logger.Debugf("found np scan: %s", ff)
 			s.ParseNP()
+			continue
+		}
+		if s.IsNmap() {
+			r.Logger.Debugf("found nmap scan: %s", ff)
+			s.ParseNmap()
 			continue
 		}
 	}
