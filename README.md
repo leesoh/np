@@ -82,10 +82,7 @@ Show instances of the given service:
 
 ```sh
 $ np -service https [-path /path/to/scans]
-bishopfox.com (159.223.119.162)
-PORT    SERVICE PRODUCT VERSION
-80/tcp  http            
-443/tcp https
+bishopfox.com:443
 ```
 
 Print all open ports:
