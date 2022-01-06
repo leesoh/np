@@ -78,26 +78,28 @@ func (r *Result) PrintAlive() {
 }
 
 func (r *Result) PrintByService(service string) {
-	hm := make(map[*Host]struct{})
+	var hosts []string
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
 			continue
 		}
-		for _, v := range hh.TCPPorts {
+		for k, v := range hh.TCPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", v.Name)
-				hm[hh] = struct{}{}
+				s := fmt.Sprintf("%v:%v", hh.Name, k)
+				hosts = append(hosts, s)
 			}
 		}
-		for _, v := range hh.UDPPorts {
+		for k, v := range hh.UDPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", v.Name)
-				hm[hh] = struct{}{}
+				s := fmt.Sprintf("%v:%v", hh.Name, k)
+				hosts = append(hosts, s)
 			}
 		}
 	}
-	for k := range hm {
-		r.PrintHost(k)
+	for _, h := range hosts {
+		fmt.Println(h)
 	}
 }
 
