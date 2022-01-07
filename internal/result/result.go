@@ -69,6 +69,14 @@ func (h *Host) mergePorts(k int, p *Port) {
 	}
 }
 
+func (h *Host) GetName() string {
+	if h.Name != "" {
+		return h.Name
+	} else {
+		return h.IP.String()
+	}
+}
+
 type Port struct {
 	Name      string `json:"name,omitempty"`
 	Product   string `json:"product,omitempty"`
