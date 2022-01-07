@@ -83,23 +83,30 @@ func (r *Result) PrintByService(service string) {
 		if r.allPortsClosed(hh) {
 			continue
 		}
+		// Prefer hostname, but use IP if it's blank
+		var name string
+		if hh.Name != "" {
+			name = hh.Name
+		} else {
+			name = hh.IP.String()
+		}
 		for k, v := range hh.TCPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
-				r.Logger.Debugf("matched: %v", v.Name)
-				s := fmt.Sprintf("%v:%v", hh.Name, k)
+				r.Logger.Debugf("matched: %v", name)
+				s := fmt.Sprintf("%v:%v", name, k)
 				hosts = append(hosts, s)
 			}
 		}
 		for k, v := range hh.UDPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
-				r.Logger.Debugf("matched: %v", v.Name)
-				s := fmt.Sprintf("%v:%v", hh.Name, k)
+				r.Logger.Debugf("matched: %v", name)
+				s := fmt.Sprintf("%v:%v", name, k)
 				hosts = append(hosts, s)
 			}
 		}
 	}
-	for _, h := range hosts {
-		fmt.Println(h)
+	for _, host := range hosts {
+		fmt.Println(host)
 	}
 }
 
