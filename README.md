@@ -38,12 +38,12 @@ scanme.nmap.org (45.33.32.156)
 PORT      SERVICE    PRODUCT      VERSION
 80/tcp    http       Apache httpd 2.4.7
 22/tcp    ssh        OpenSSH      6.6.1p1 Ubuntu 2ubuntu2.13
-9929/tcp  nping-echo Nping echo   
-31337/tcp Elite                   
+9929/tcp  nping-echo Nping echo
+31337/tcp Elite
 
 bishopfox.com (159.223.119.162)
 PORT    SERVICE PRODUCT VERSION
-80/tcp  http            
+80/tcp  http
 443/tcp https
 ```
 
@@ -55,16 +55,16 @@ scanme.nmap.org (45.33.32.156)
 PORT      SERVICE    PRODUCT      VERSION
 80/tcp    http       Apache httpd 2.4.7
 22/tcp    ssh        OpenSSH      6.6.1p1 Ubuntu 2ubuntu2.13
-9929/tcp  nping-echo Nping echo   
-31337/tcp Elite                   
+9929/tcp  nping-echo Nping echo
+31337/tcp Elite
 ```
 
 Print all alive hosts:
 
 ```sh
 $ np -hosts [-path /path/to/scans]
-45.33.32.156 (scanme.nmap.org)
-159.223.119.162 (bishopfox.com)
+scanme.nmap.org (45.33.32.156)
+bishopfox.com (159.223.119.162)
 ```
 
 Print all services:
