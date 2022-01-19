@@ -70,7 +70,8 @@ func (r *Result) PrintAlive() {
 			continue
 		}
 		if h.Name != "" {
-			fmt.Printf("%v (%v)\n", h.IP, h.Name)
+			// Prefer hostname
+			fmt.Printf("%v (%v)\n", h.Name, h.IP)
 		} else {
 			fmt.Printf("%v\n", h.IP)
 		}
