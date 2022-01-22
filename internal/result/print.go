@@ -78,6 +78,7 @@ func (r *Result) PrintAlive() {
 	}
 }
 
+// PrintByService prints a specific service
 func (r *Result) PrintByService(service string) {
 	var hosts []string
 	for _, hh := range r.Hosts {
@@ -87,36 +88,45 @@ func (r *Result) PrintByService(service string) {
 		for k, v := range hh.TCPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", hh.GetName())
-				s := fmt.Sprintf("%v:%v", hh.GetName(), k)
+				s := r.formatService(hh.GetName(), k, v.Name)
 				hosts = append(hosts, s)
 			}
 		}
 		for k, v := range hh.UDPPorts {
 			if matched, _ := regexp.MatchString(service, v.Name); matched {
 				r.Logger.Debugf("matched: %v", hh.GetName())
-				s := fmt.Sprintf("%v:%v", hh.GetName(), k)
+				s := r.formatService(hh.GetName(), k, v.Name)
 				hosts = append(hosts, s)
 			}
 		}
 	}
-	for _, host := range hosts {
-		fmt.Println(host)
+	for _, hh := range hosts {
+		fmt.Println(hh)
 	}
 }
 
+// PrintService prints all services in host:port service format
 func (r *Result) PrintServices() {
-	s := make(map[string]struct{})
+	var hosts []string
 	for _, hh := range r.Hosts {
-		for _, v := range hh.TCPPorts {
-			if v.Name != "" {
-				s[v.Name] = struct{}{}
-			}
+		for k, v := range hh.TCPPorts {
+			r.Logger.Debugf("matched: %v", hh.GetName())
+			s := r.formatService(hh.GetName(), k, v.Name)
+			hosts = append(hosts, s)
+		}
+		for k, v := range hh.UDPPorts {
+			r.Logger.Debugf("matched: %v", hh.GetName())
+			s := r.formatService(hh.GetName(), k, v.Name)
+			hosts = append(hosts, s)
 		}
 	}
-	sorted := sortStringMap(s)
-	for _, ss := range sorted {
-		fmt.Println(ss)
+	for _, hh := range hosts {
+		fmt.Println(hh)
 	}
+}
+
+func (r *Result) formatService(name string, port int, service string) string {
+	return fmt.Sprintf("%v:%v %v", name, port, service)
 }
 
 func (r *Result) PrintByPort(port []int) {

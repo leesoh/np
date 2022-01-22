@@ -71,11 +71,12 @@ Print all services:
 
 ```sh
 $ np -services [-path /path/to/scans]
-Elite
-http
-https
-nping-echo
-ssh
+scanme.nmap.org:9929 nping-echo
+scanme.nmap.org:31337 Elite
+scanme.nmap.org:22 ssh
+scanme.nmap.org:80 http
+bishopfox.com:80 http
+bishopfox.com:443 https
 ```
 
 Show instances of the given service:
