@@ -157,6 +157,8 @@ $ np [-path /path/to/scans] -json
 
 ## Installation
 
+Make sure that `$GOPATH/bin` is part of `$PATH`, then:
+
 ```sh
 go install github.com/leesoh/np/cmd/np@latest
 ```
