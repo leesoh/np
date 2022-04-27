@@ -20,7 +20,7 @@ type Runner struct {
 
 func New(options *Options) *Runner {
 	logger := cli.NewStandard()
-	if options.Verbose {
+	if options.Debug {
 		logger.Level = log.DebugLevel
 	} else {
 		logger.Level = log.FatalLevel
@@ -54,40 +54,44 @@ func (r *Runner) Run() {
 			continue
 		}
 	}
+	// -host
 	if r.Options.Host != "" {
 		ip := net.ParseIP(r.Options.Host)
 		h := &result.Host{}
-		r.Logger.Debugf("host option with ip: %+v", ip)
 		if ip == nil {
 			h.Name = r.Options.Host
 		} else {
 			h.IP = ip
 		}
 		res.PrintHost(h)
-		r.Logger.Debugf("printed host: %v", h)
 		return
 	}
+	// -hosts
 	if r.Options.Hosts {
 		res.PrintAlive()
 		return
 	}
+	// -service
 	if r.Options.Service != "" {
 		res.PrintByService(r.Options.Service)
 		return
 	}
+	// -services
 	if r.Options.Services {
 		res.PrintServices()
 		return
 	}
+	// -port
 	if r.Options.Port != nil {
 		res.PrintByPort(r.Options.Port)
-		r.Logger.Debugf("printed by port")
 		return
 	}
+	// -ports
 	if r.Options.Ports {
 		res.PrintPortSummary()
 		return
 	}
+	// -json
 	if r.Options.JSON {
 		res.PrintJSON()
 		return
@@ -115,10 +119,10 @@ func (r *Runner) walkScans(path string, d fs.DirEntry, err error) error {
 	switch filepath.Ext(path) {
 	case ".xml":
 		r.Files = append(r.Files, path)
-		r.Logger.Debugf("added XML file: %v", filepath.Base(path))
+		r.Logger.Debugf("queued XML file for processing: %v", filepath.Base(path))
 	case ".json":
 		r.Files = append(r.Files, path)
-		r.Logger.Debugf("added JSON file: %v", filepath.Base(path))
+		r.Logger.Debugf("queued XML file for processing: %v", filepath.Base(path))
 	}
 	return nil
 }

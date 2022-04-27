@@ -12,7 +12,7 @@ func (s *Scan) IsNP() bool {
 	dec := json.NewDecoder(bytes.NewReader(s.Bytes))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&h); err != nil {
-		s.Logger.Debugf("not np results")
+		s.Logger.Debugf("not np output")
 		return false
 	}
 	s.Logger.Debugf("found valid np results")
@@ -20,9 +20,13 @@ func (s *Scan) IsNP() bool {
 }
 
 func (s *Scan) ParseNP() {
+	var hosts []*result.Host
 	// We're importing an old np session so just unpack into results
-	err := json.Unmarshal(s.Bytes, &s.Result.Hosts)
+	err := json.Unmarshal(s.Bytes, hosts)
 	if err != nil {
 		s.Logger.Errorf("error unmarshaling np results: %v", err)
+	}
+	for _, hh := range hosts {
+		s.Result.AddHost(hh)
 	}
 }

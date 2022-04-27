@@ -15,7 +15,7 @@ type Options struct {
 	Ports    bool
 	Service  string
 	Services bool
-	Verbose  bool
+	Debug    bool
 }
 
 func ParseOptions() *Options {
@@ -28,7 +28,7 @@ func ParseOptions() *Options {
 	flag.BoolVar(&options.Ports, "ports", false, "Print all ports")
 	flag.StringVar(&options.Service, "service", "", "Display hosts with matching service name")
 	flag.BoolVar(&options.Services, "services", false, "Print all services")
-	flag.BoolVar(&options.Verbose, "verbose", false, "Display verbose output")
+	flag.BoolVar(&options.Debug, "debug", false, "Display debug output")
 	flag.Parse()
 	if *port != "" {
 		pl := strings.Split(*port, ",")

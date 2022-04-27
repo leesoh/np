@@ -133,10 +133,8 @@ func (s *Scan) IsNmap() bool {
 	}
 	// TODO: I don't think we need this
 	if s.Nmap.Scanner == "nmap" {
-		s.Logger.Debugf("found valid nmap scan")
 		return true
 	}
-	s.Logger.Debugf("not an nmap scan")
 	return false
 }
 
@@ -158,14 +156,14 @@ func (s *Scan) ParseNmap() {
 			UDPPorts: s.getNmapPorts(hh, "udp"),
 		}
 		s.Result.AddHost(h)
-		s.Logger.Debugf("added host: %v", h)
+		s.Logger.Debugf("added host: %v", h.IP)
 	}
 }
 
 func (s *Scan) getNmapHostname(h Host) string {
 	for _, hh := range h.Hostnames {
-		s.Logger.Debugf("getting hostname: %v", hh.Name)
 		if hh.Type == "user" {
+			s.Logger.Debugf("found hostname: %v", hh.Name)
 			return hh.Name
 		}
 	}
@@ -196,7 +194,7 @@ func (s *Scan) getNmapPorts(h Host, protocol string) map[int]*result.Port {
 				ExtraInfo: pp.Service.Extrainfo,
 			}
 			ports[number] = port
-			s.Logger.Debugf("found ports: %v", port)
+			s.Logger.Debugf("found port: %v/%v", number, protocol)
 		}
 	}
 	return ports
