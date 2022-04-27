@@ -19,16 +19,20 @@ func New(logger *cli.Logger) *Result {
 
 // TODO: Refactor this mess
 func (r *Result) AddHost(new *Host) {
-	r.Logger.Debugf("processing host: %+v", new)
+	r.Logger.Debugf("processing host: %v", new.IP)
+	// We search our list of hosts for a match. If one is found,
+	// we add ports.
 	for _, hh := range r.Hosts {
-		// host is a match
 		if hh.IP.Equal(new.IP) {
+			r.Logger.Debugf("adding ports to %v", hh.IP)
 			hh.addTCPPorts(new.TCPPorts)
-			//hh.addUDPPorts(new.UDPPorts)
+			hh.addUDPPorts(new.UDPPorts)
 			return
 		}
 	}
-	// we didn't find an existing host, add this one
+	// We didn't find an existing host, add this one
+	r.Logger.Debugf("found new host: %v", new.IP)
+	// good to here
 	r.Hosts = append(r.Hosts, new)
 }
 
@@ -41,33 +45,49 @@ type Host struct {
 
 func (h *Host) addTCPPorts(p map[int]*Port) {
 	for k, v := range p {
-		h.addOrUpdatePort(k, v)
+		h.addOrUpdatePort(k, v, "tcp")
 	}
 }
 
-func (h *Host) addOrUpdatePort(k int, p *Port) {
-	// port doesn't exist
-	if _, hasPort := h.TCPPorts[k]; !hasPort {
-		h.TCPPorts[k] = p
-		return
+func (h *Host) addUDPPorts(p map[int]*Port) {
+	for k, v := range p {
+		h.addOrUpdatePort(k, v, "udp")
 	}
-	h.mergePorts(k, p)
 }
 
-func (h *Host) mergePorts(k int, p *Port) {
-	if h.TCPPorts[k].Name == "" && p.Name != "" {
-		h.TCPPorts[k].Name = p.Name
+func (h *Host) addOrUpdatePort(k int, p *Port, proto string) {
+	if proto == "tcp" {
+		if _, hasPort := h.TCPPorts[k]; !hasPort {
+			h.TCPPorts[k] = p
+			return
+		}
+		h.TCPPorts[k].Update(p)
+		//h.mergePorts(k, p)
 	}
-	if h.TCPPorts[k].Product == "" && p.Product != "" {
-		h.TCPPorts[k].Product = p.Product
-	}
-	if h.TCPPorts[k].Version == "" && p.Version != "" {
-		h.TCPPorts[k].Version = p.Version
-	}
-	if h.TCPPorts[k].ExtraInfo == "" && p.ExtraInfo != "" {
-		h.TCPPorts[k].ExtraInfo = p.ExtraInfo
+	if proto == "udp" {
+		if _, hasPort := h.UDPPorts[k]; !hasPort {
+			h.UDPPorts[k] = p
+			return
+		}
+		h.UDPPorts[k].Update(p)
+		//h.mergePorts(k, p)
 	}
 }
+
+//func (h *Host) mergePorts(k int, p *Port) {
+//	if h.TCPPorts[k].Name == "" && p.Name != "" {
+//		h.TCPPorts[k].Name = p.Name
+//	}
+//	if h.TCPPorts[k].Product == "" && p.Product != "" {
+//		h.TCPPorts[k].Product = p.Product
+//	}
+//	if h.TCPPorts[k].Version == "" && p.Version != "" {
+//		h.TCPPorts[k].Version = p.Version
+//	}
+//	if h.TCPPorts[k].ExtraInfo == "" && p.ExtraInfo != "" {
+//		h.TCPPorts[k].ExtraInfo = p.ExtraInfo
+//	}
+//}
 
 func (h *Host) GetName() string {
 	if h.Name != "" {
@@ -82,4 +102,19 @@ type Port struct {
 	Product   string `json:"product,omitempty"`
 	Version   string `json:"version,omitempty"`
 	ExtraInfo string `json:"extra_info,omitempty"`
+}
+
+func (p *Port) Update(portData *Port) {
+	if portData.Name == "" && p.Name != "" {
+		portData.Name = p.Name
+	}
+	if portData.Product == "" && p.Product != "" {
+		portData.Product = p.Product
+	}
+	if portData.Version == "" && p.Version != "" {
+		portData.Version = p.Version
+	}
+	if portData.ExtraInfo == "" && p.ExtraInfo != "" {
+		portData.ExtraInfo = p.ExtraInfo
+	}
 }

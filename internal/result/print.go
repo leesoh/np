@@ -13,33 +13,36 @@ import (
 // Print prints all hosts and the details of their open ports
 func (r *Result) Print() {
 	for _, hh := range r.Hosts {
-		r.PrintHost(hh)
+		r.Logger.Debugf("now printing: %v", hh.Name)
+		r.hostPrinter(hh)
+		r.portPrinter(hh)
 	}
 }
 
-// PrintHost prints the full host details for a given host
+// PrintHost prints the full host details for the requested host
 func (r *Result) PrintHost(h *Host) {
+	// Iterate through all hosts to find a match for the requested host
 	for _, hh := range r.Hosts {
 		if hh.IP.Equal(h.IP) {
-			if r.allPortsClosed(hh) {
-				continue
-			}
-			if hh.Name != "" {
-				fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
-				r.Logger.Debugf("printed host with non-blank name: %+v", hh)
-			} else {
-				fmt.Printf("%v\n", hh.IP)
-				r.Logger.Debugf("printed host with blank name: %+v", hh)
-			}
+			r.hostPrinter(hh)
 		} else if hh.Name != "" && hh.Name == h.Name {
-			if r.allPortsClosed(hh) {
-				continue
-			}
-			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
+			r.hostPrinter(hh)
 		} else {
 			continue
 		}
 		r.portPrinter(hh)
+	}
+}
+
+func (r *Result) hostPrinter(h *Host) {
+	if r.allPortsClosed(h) {
+		r.Logger.Debugf("all ports closed: %v", h.IP)
+		return
+	}
+	if h.Name != "" {
+		fmt.Printf("%v (%v)\n", h.Name, h.IP)
+	} else {
+		fmt.Printf("%v\n", h.IP)
 	}
 }
 
@@ -65,15 +68,16 @@ func (r *Result) portPrinter(h *Host) {
 }
 
 func (r *Result) PrintAlive() {
-	for _, h := range r.Hosts {
-		if r.allPortsClosed(h) {
+	for _, hh := range r.Hosts {
+		if r.allPortsClosed(hh) {
+			r.Logger.Debugf("all ports closed: %v", hh.IP)
 			continue
 		}
-		if h.Name != "" {
-			// Prefer hostname
-			fmt.Printf("%v (%v)\n", h.Name, h.IP)
+		// Prefer hostname over IP
+		if hh.Name != "" {
+			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
 		} else {
-			fmt.Printf("%v\n", h.IP)
+			fmt.Printf("%v\n", hh.IP)
 		}
 	}
 }
@@ -150,10 +154,10 @@ func (r *Result) PrintByPort(port []int) {
 func (r *Result) PrintPortSummary() {
 	p := make(map[int]struct{})
 	for _, h := range r.Hosts {
-		for k, _ := range h.TCPPorts {
+		for k := range h.TCPPorts {
 			p[k] = struct{}{}
 		}
-		for k, _ := range h.UDPPorts {
+		for k := range h.UDPPorts {
 			p[k] = struct{}{}
 		}
 	}
