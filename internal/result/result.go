@@ -62,7 +62,6 @@ func (h *Host) addOrUpdatePort(k int, p *Port, proto string) {
 			return
 		}
 		h.TCPPorts[k].Update(p)
-		//h.mergePorts(k, p)
 	}
 	if proto == "udp" {
 		if _, hasPort := h.UDPPorts[k]; !hasPort {
@@ -70,24 +69,12 @@ func (h *Host) addOrUpdatePort(k int, p *Port, proto string) {
 			return
 		}
 		h.UDPPorts[k].Update(p)
-		//h.mergePorts(k, p)
 	}
 }
 
-//func (h *Host) mergePorts(k int, p *Port) {
-//	if h.TCPPorts[k].Name == "" && p.Name != "" {
-//		h.TCPPorts[k].Name = p.Name
-//	}
-//	if h.TCPPorts[k].Product == "" && p.Product != "" {
-//		h.TCPPorts[k].Product = p.Product
-//	}
-//	if h.TCPPorts[k].Version == "" && p.Version != "" {
-//		h.TCPPorts[k].Version = p.Version
-//	}
-//	if h.TCPPorts[k].ExtraInfo == "" && p.ExtraInfo != "" {
-//		h.TCPPorts[k].ExtraInfo = p.ExtraInfo
-//	}
-//}
+func (h *Host) allPortsClosed() bool {
+	return len(h.TCPPorts) == 0 && len(h.UDPPorts) == 0
+}
 
 func (h *Host) GetName() string {
 	if h.Name != "" {

@@ -47,6 +47,9 @@ func (r *Result) hostPrinter(h *Host) {
 }
 
 func (r *Result) portPrinter(h *Host) {
+	if h.allPortsClosed() {
+		return
+	}
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
 	for k, v := range h.TCPPorts {
