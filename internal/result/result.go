@@ -24,6 +24,7 @@ func (r *Result) AddHost(new *Host) {
 	// we add ports.
 	for _, hh := range r.Hosts {
 		if hh.IP.Equal(new.IP) {
+			hh.updateName(new.Name)
 			r.Logger.Debugf("adding ports to %v", hh.IP)
 			hh.addTCPPorts(new.TCPPorts)
 			hh.addUDPPorts(new.UDPPorts)
@@ -41,6 +42,13 @@ type Host struct {
 	Name     string        `json:"hostname,omitempty"`
 	TCPPorts map[int]*Port `json:"tcp_ports,omitempty"`
 	UDPPorts map[int]*Port `json:"udp_ports,omitempty"`
+}
+
+func (h *Host) updateName(hostname string) {
+	// Don't overwrite
+	if h.Name == "" && hostname != "" {
+		h.Name = hostname
+	}
 }
 
 func (h *Host) addTCPPorts(p map[int]*Port) {
