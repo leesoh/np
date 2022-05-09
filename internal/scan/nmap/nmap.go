@@ -1,11 +1,8 @@
-package scan
+package nmap
 
 import (
 	"encoding/xml"
-	"net"
-	"strconv"
-
-	"github.com/leesoh/np/internal/result"
+	"fmt"
 )
 
 // Thanks to lair-framework/go-nmap for making this simpler
@@ -127,75 +124,11 @@ type Times struct {
 	To     string `xml:"to,attr"`
 }
 
-func (s *Scan) IsNmap() bool {
-	if err := s.unmarshalNmap(); err != nil {
-		return false
-	}
-	// TODO: I don't think we need this
-	if s.Nmap.Scanner == "nmap" {
-		return true
-	}
-	return false
-}
-
-func (s *Scan) unmarshalNmap() error {
-	err := xml.Unmarshal(s.Bytes, &s.Nmap)
+func Parse(scan []byte) (*NmapScan, error) {
+	s := &NmapScan{}
+	err := xml.Unmarshal(scan, s)
 	if err != nil {
-		s.Logger.Errorf("error unmarshaling Nmap: %v", err)
-		return err
+		return nil, fmt.Errorf("error unmarshaling Nmap: %v", err)
 	}
-	return nil
-}
-
-func (s *Scan) ParseNmap() {
-	for _, hh := range s.Nmap.Hosts {
-		h := &result.Host{
-			Name:     s.getNmapHostname(hh),
-			IP:       s.getNmapIP(hh),
-			TCPPorts: s.getNmapPorts(hh, "tcp"),
-			UDPPorts: s.getNmapPorts(hh, "udp"),
-		}
-		s.Result.AddHost(h)
-		s.Logger.Debugf("added host: %v", h.IP)
-	}
-}
-
-func (s *Scan) getNmapHostname(h Host) string {
-	for _, hh := range h.Hostnames {
-		if hh.Type == "user" {
-			s.Logger.Debugf("found hostname: %v", hh.Name)
-			return hh.Name
-		}
-	}
-	return ""
-}
-
-func (s *Scan) getNmapIP(h Host) net.IP {
-	ip := net.ParseIP(h.Address.Addr)
-	if ip != nil {
-		s.Logger.Debugf("added IP: %v", ip)
-		return ip
-	}
-	return nil
-}
-
-func (s *Scan) getNmapPorts(h Host, protocol string) map[int]*result.Port {
-	ports := make(map[int]*result.Port)
-	for _, pp := range h.Ports {
-		if pp.State.State == "open" && pp.Protocol == protocol {
-			number, err := strconv.Atoi(pp.Portid)
-			if err != nil {
-				s.Logger.Errorf("error casting port: %v", pp.Portid)
-			}
-			port := &result.Port{
-				Name:      pp.Service.Name,
-				Product:   pp.Service.Product,
-				Version:   pp.Service.Version,
-				ExtraInfo: pp.Service.Extrainfo,
-			}
-			ports[number] = port
-			s.Logger.Debugf("found port: %v/%v", number, protocol)
-		}
-	}
-	return ports
+	return s, nil
 }
