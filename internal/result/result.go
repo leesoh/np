@@ -38,7 +38,7 @@ func (r *Result) AddHost(new *Host) {
 
 type Host struct {
 	IP       net.IP        `json:"ip"`
-	Name     string        `json:"hostname"`
+	Name     string        `json:"hostname,omitempty"`
 	TCPPorts map[int]*Port `json:"tcp_ports,omitempty"`
 	UDPPorts map[int]*Port `json:"udp_ports,omitempty"`
 }
