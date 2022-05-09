@@ -14,19 +14,19 @@ type NmapScan struct {
 	Start            string    `xml:"start,attr"`
 	Startstr         string    `xml:"startstr,attr"`
 	Version          string    `xml:"version,attr"`
-	Xmloutputversion string    `xml:"xmloutputversion,attr"`
-	Scaninfo         ScanInfo  `xml:"scaninfo"`
+	XMLOutputVersion string    `xml:"xmloutputversion,attr"`
+	ScanInfo         ScanInfo  `xml:"scaninfo"`
 	Verbose          Verbose   `xml:"verbose"`
 	Debugging        Debugging `xml:"debugging"`
 	Hosts            []Host    `xml:"host"`
-	Runstats         RunStats  `xml:"runstats"`
+	RunStats         RunStats  `xml:"runstats"`
 }
 
 type ScanInfo struct {
 	Text        string `xml:",chardata"`
 	Type        string `xml:"type,attr"`
 	Protocol    string `xml:"protocol,attr"`
-	Numservices string `xml:"numservices,attr"`
+	NumServices string `xml:"numservices,attr"`
 	Services    string `xml:"services,attr"`
 }
 
@@ -64,8 +64,8 @@ type Hosts struct {
 
 type Host struct {
 	Text      string     `xml:",chardata"`
-	Starttime string     `xml:"starttime,attr"`
-	Endtime   string     `xml:"endtime,attr"`
+	StartTime string     `xml:"starttime,attr"`
+	EndTime   string     `xml:"endtime,attr"`
 	Status    Status     `xml:"status"`
 	Address   Address    `xml:"address"`
 	Hostnames []Hostname `xml:"hostnames>hostname"`
@@ -77,7 +77,7 @@ type Status struct {
 	Text      string `xml:",chardata"`
 	State     string `xml:"state,attr"`
 	Reason    string `xml:"reason,attr"`
-	ReasonTtl string `xml:"reason_ttl,attr"`
+	ReasonTTL string `xml:"reason_ttl,attr"`
 }
 
 type Address struct {
@@ -95,7 +95,7 @@ type Hostname struct {
 type Port struct {
 	Text     string  `xml:",chardata"`
 	Protocol string  `xml:"protocol,attr"`
-	Portid   string  `xml:"portid,attr"`
+	PortID   string  `xml:"portid,attr"`
 	State    State   `xml:"state"`
 	Service  Service `xml:"service"`
 }
@@ -104,7 +104,7 @@ type State struct {
 	Text      string `xml:",chardata"`
 	State     string `xml:"state,attr"`
 	Reason    string `xml:"reason,attr"`
-	ReasonTtl string `xml:"reason_ttl,attr"`
+	ReasonTTL string `xml:"reason_ttl,attr"`
 }
 
 type Service struct {
@@ -113,14 +113,14 @@ type Service struct {
 	Name      string `xml:"name,attr"`
 	Product   string `xml:"product,attr"`
 	Version   string `xml:"version,attr"`
-	Extrainfo string `xml:"extrainfo,attr"`
+	ExtraInfo string `xml:"extrainfo,attr"`
 	Text      string `xml:",chardata"`
 }
 
 type Times struct {
 	Text   string `xml:",chardata"`
-	Srtt   string `xml:"srtt,attr"`
-	Rttvar string `xml:"rttvar,attr"`
+	SRTT   string `xml:"srtt,attr"`
+	RTTVar string `xml:"rttvar,attr"`
 	To     string `xml:"to,attr"`
 }
 

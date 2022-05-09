@@ -70,15 +70,15 @@ func (s *Scan) getNmapPorts(h nmap.Host, protocol string) map[int]*result.Port {
 	ports := make(map[int]*result.Port)
 	for _, pp := range h.Ports {
 		if pp.State.State == "open" && pp.Protocol == protocol {
-			number, err := strconv.Atoi(pp.Portid)
+			number, err := strconv.Atoi(pp.PortID)
 			if err != nil {
-				s.Logger.Errorf("error casting port: %v", pp.Portid)
+				s.Logger.Errorf("error casting port: %v", pp.PortID)
 			}
 			port := &result.Port{
 				Name:      pp.Service.Name,
 				Product:   pp.Service.Product,
 				Version:   pp.Service.Version,
-				ExtraInfo: pp.Service.Extrainfo,
+				ExtraInfo: pp.Service.ExtraInfo,
 			}
 			ports[number] = port
 			s.Logger.Debugf("found port: %v/%v", number, protocol)
