@@ -13,7 +13,6 @@ import (
 // Print prints all hosts and the details of their open ports
 func (r *Result) Print() {
 	for _, hh := range r.Hosts {
-		r.Logger.Debugf("now printing: %v", hh.Name)
 		r.hostPrinter(hh)
 		r.portPrinter(hh)
 	}
@@ -36,7 +35,6 @@ func (r *Result) PrintHost(h *Host) {
 
 func (r *Result) hostPrinter(h *Host) {
 	if r.allPortsClosed(h) {
-		r.Logger.Debugf("all ports closed: %v", h.IP)
 		return
 	}
 	if h.Name != "" {
@@ -197,7 +195,7 @@ func (r *Result) PrintableIPList(ips []net.IP) string {
 
 func (r *Result) allPortsClosed(h *Host) bool {
 	if len(h.TCPPorts) == 0 && len(h.UDPPorts) == 0 {
-		r.Logger.Debugf("no open ports on host: %v", h)
+		r.Logger.Debugf("no open ports on host: %v", h.IP)
 		return true
 	}
 	return false
