@@ -14,6 +14,8 @@ Supported scan types:
 
 ```text
 Usage of np:
+  -debug
+     Display debug output
   -host string
      Show results for specified host
   -hosts
@@ -30,8 +32,6 @@ Usage of np:
      Display hosts with matching service name
   -services
      Print all services
-  -verbose
-     Display verbose output
 ```
 
 The `-json` option will display all hosts with at least one open port, while the other formats will omit ports that are likely false positives (e.g. `tcpwrapped`).
