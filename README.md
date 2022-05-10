@@ -7,6 +7,7 @@ Supported scan types:
 - Nmap XML output
 - Masscan XML output
 - Naabu JSON output
+- DNSx JSON output
 - `np` JSON output
 
 ## Usage
