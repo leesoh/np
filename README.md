@@ -163,6 +163,13 @@ Make sure that `$GOPATH/bin` is part of `$PATH`, then:
 go install github.com/leesoh/np/cmd/np@latest
 ```
 
+## Similar Tools
+
+In case `np` isn't quite what you're looking for, here are a few similar tools:
+
+- [nmap-parse-output](https://github.com/ernw/nmap-parse-output) - Parse single Nmap scan output with extremely flexible output
+- [nmap-bootstrap-xsl](https://github.com/honze-net/nmap-bootstrap-xsl/) - Create nice looking HTML reports from Nmap scan output
+
 ## Thanks
 
 - [go-nmap](https://github.com/lair-framework/go-nmap) - For making the XML parsing less awful
