@@ -1,6 +1,13 @@
 # np
 
-np is a tool for parsing multiple Nmap scans and querying the results. It can also import its own JSON results.
+np is a tool for parsing the output from multiple different port scanners and querying the results.
+
+Supported scan types:
+
+- Nmap XML output
+- Masscan XML output
+- Naabu JSON output
+- `np` JSON output
 
 ## Usage
 
