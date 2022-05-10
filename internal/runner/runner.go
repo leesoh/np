@@ -56,6 +56,10 @@ func (r *Runner) Run() {
 			r.Logger.Debugf("found naabu scan: %s", ff)
 			s.ParseNaabu()
 		}
+		if s.IsDNSx() {
+			r.Logger.Debugf("found DNSx scan: %s", ff)
+			s.ParseDNSx()
+		}
 	}
 	// -host
 	if r.Options.Host != "" {

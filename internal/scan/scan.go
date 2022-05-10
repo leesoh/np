@@ -6,6 +6,7 @@ import (
 
 	"github.com/Masterminds/log-go/impl/cli"
 	"github.com/leesoh/np/internal/result"
+	"github.com/leesoh/np/internal/scan/dnsx"
 	"github.com/leesoh/np/internal/scan/naabu"
 	"github.com/leesoh/np/internal/scan/nmap"
 )
@@ -118,4 +119,32 @@ func (s *Scan) intToPort(portInt int) map[int]*result.Port {
 	ports := make(map[int]*result.Port)
 	ports[portInt] = &result.Port{}
 	return ports
+}
+
+func (s *Scan) IsDNSx() bool {
+	if _, err := dnsx.Parse(s.Bytes); err != nil {
+		s.Logger.Debugf("not a DNSx scan: %v", err)
+		return false
+	}
+	return true
+}
+
+func (s *Scan) ParseDNSx() {
+	ds, err := dnsx.Parse(s.Bytes)
+	if err != nil {
+		s.Logger.Errorf("error parsing DNSx scan: %v", err)
+	}
+	for _, rr := range ds.Records {
+		// We will add each IP:host mapping as a discrete host
+		for i := range rr.IPAddresses {
+			h := &result.Host{
+				Name:     rr.Hostname,
+				IP:       s.stringToIP(rr.IPAddresses[i]),
+				TCPPorts: map[int]*result.Port{},
+				UDPPorts: map[int]*result.Port{},
+			}
+			s.Result.AddHost(h)
+			s.Logger.Debugf("added host: %v", h.Name)
+		}
+	}
 }
