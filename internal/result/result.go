@@ -17,24 +17,23 @@ func New(logger *cli.Logger) *Result {
 	}
 }
 
-// TODO: Refactor this mess
-func (r *Result) AddHost(new *Host) {
-	r.Logger.Debugf("processing host: %v", new.IP)
+func (r *Result) AddHost(newHost *Host) {
+	r.Logger.Debugf("processing host: %v", newHost.IP)
 	// We search our list of hosts for a match. If one is found,
 	// we add ports.
 	for _, hh := range r.Hosts {
-		if hh.IP.Equal(new.IP) {
-			hh.updateName(new.Name)
+		if hh.IP.Equal(newHost.IP) {
+			hh.updateName(newHost.Name)
 			r.Logger.Debugf("adding ports to %v", hh.IP)
-			hh.addTCPPorts(new.TCPPorts)
-			hh.addUDPPorts(new.UDPPorts)
+			hh.addTCPPorts(newHost.TCPPorts)
+			hh.addUDPPorts(newHost.UDPPorts)
 			return
 		}
 	}
 	// We didn't find an existing host, add this one
-	r.Logger.Debugf("found new host: %v", new.IP)
+	r.Logger.Debugf("found new host: %v", newHost.IP)
 	// good to here
-	r.Hosts = append(r.Hosts, new)
+	r.Hosts = append(r.Hosts, newHost)
 }
 
 type Host struct {

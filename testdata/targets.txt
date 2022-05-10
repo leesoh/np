@@ -1,0 +1,3 @@
+north-america.pool.ntp.org
+scanme.nmap.org
+bishopfox.com

@@ -46,12 +46,15 @@ func (r *Runner) Run() {
 		if s.IsNP() {
 			r.Logger.Debugf("found np scan: %s", ff)
 			s.ParseNP()
-			continue
 		}
+		// This handles both Nmap and Masscan files as they have the same structure
 		if s.IsNmap() {
 			r.Logger.Debugf("found nmap scan: %s", ff)
 			s.ParseNmap()
-			continue
+		}
+		if s.IsNaabu() {
+			r.Logger.Debugf("found naabu scan: %s", ff)
+			s.ParseNaabu()
 		}
 	}
 	// -host
@@ -122,7 +125,9 @@ func (r *Runner) walkScans(path string, d fs.DirEntry, err error) error {
 		r.Logger.Debugf("queued XML file for processing: %v", filepath.Base(path))
 	case ".json":
 		r.Files = append(r.Files, path)
-		r.Logger.Debugf("queued XML file for processing: %v", filepath.Base(path))
+		r.Logger.Debugf("queued JSON file for processing: %v", filepath.Base(path))
+	default:
+		r.Logger.Debugf("unsupported file type: %v", filepath.Base(path))
 	}
 	return nil
 }
