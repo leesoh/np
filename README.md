@@ -1,6 +1,6 @@
 # np
 
-np is a tool for parsing, combining, deduplicating, and querying the output from multiple different tools:
+np is a tool for parsing, combining, deduplicating, and querying the output from multiple different tools.
 
 Supported scan types:
 
