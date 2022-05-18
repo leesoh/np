@@ -1,7 +1,9 @@
 package result
 
 import (
+	"bytes"
 	"net"
+	"sort"
 
 	"github.com/Masterminds/log-go/impl/cli"
 )
@@ -9,6 +11,13 @@ import (
 type Result struct {
 	Logger *cli.Logger
 	Hosts  []*Host
+}
+
+func (r *Result) SortByIP() {
+	sort.Slice(r.Hosts, func(p, q int) bool {
+		return bytes.Compare(r.Hosts[p].IP, r.Hosts[q].IP) < 0
+	})
+
 }
 
 func New(logger *cli.Logger) *Result {

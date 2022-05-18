@@ -18,7 +18,7 @@ func (r *Result) Print() {
 	}
 }
 
-// PrintHost prints the full host details for the requested host
+// PrintHost prints the full host details for the requested host (-host)
 func (r *Result) PrintHost(h *Host) {
 	// Iterate through all hosts to find a match for the requested host
 	for _, hh := range r.Hosts {
@@ -44,12 +44,15 @@ func (r *Result) hostPrinter(h *Host) {
 	}
 }
 
+// portPrinter prints a nice port table
 func (r *Result) portPrinter(h *Host) {
+	// We don't print ports if we don't have ports
 	if h.allPortsClosed() {
 		return
 	}
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	fmt.Fprintln(writer, "PORT\tSERVICE\tPRODUCT\tVERSION")
+	// tcpwrapped are boring, do not print
 	for k, v := range h.TCPPorts {
 		if v.Name == "tcpwrapped" {
 			continue
@@ -68,7 +71,9 @@ func (r *Result) portPrinter(h *Host) {
 	fmt.Println()
 }
 
+// PrintAlive prints all hosts with at least one open port (-hosts)
 func (r *Result) PrintAlive() {
+	r.SortByIP()
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
 			r.Logger.Debugf("all ports closed: %v", hh.IP)
@@ -76,6 +81,7 @@ func (r *Result) PrintAlive() {
 		}
 		// Prefer hostname over IP
 		if hh.Name != "" {
+			r.Logger.Debugf("%v", hh.Name)
 			fmt.Printf("%v (%v)\n", hh.Name, hh.IP)
 		} else {
 			fmt.Printf("%v\n", hh.IP)
@@ -83,8 +89,9 @@ func (r *Result) PrintAlive() {
 	}
 }
 
-// PrintByService prints a specific service
+// PrintByService prints a specific service (-service)
 func (r *Result) PrintByService(service string) {
+	r.SortByIP()
 	var hosts []string
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
@@ -110,8 +117,9 @@ func (r *Result) PrintByService(service string) {
 	}
 }
 
-// PrintService prints all services in host:port service format
+// PrintService prints all services in host:port service format (-services)
 func (r *Result) PrintServices() {
+	r.SortByIP()
 	var hosts []string
 	for _, hh := range r.Hosts {
 		for k, v := range hh.TCPPorts {
@@ -134,7 +142,9 @@ func (r *Result) formatService(name string, port int, service string) string {
 	return fmt.Sprintf("%v:%v %v", name, port, service)
 }
 
+// PrintByPort prints all hosts with a specific port open (-port)
 func (r *Result) PrintByPort(port []int) {
+	r.SortByIP()
 	for _, hh := range r.Hosts {
 		if r.allPortsClosed(hh) {
 			continue
@@ -152,6 +162,7 @@ func (r *Result) PrintByPort(port []int) {
 	}
 }
 
+// PrintPortSummary prints a comma-delimited list of ports (-ports)
 func (r *Result) PrintPortSummary() {
 	p := make(map[int]struct{})
 	for _, h := range r.Hosts {
@@ -178,6 +189,7 @@ func (r *Result) printIfValue(s string) {
 }
 
 func (r *Result) PrintJSON() {
+	r.SortByIP()
 	b, err := json.MarshalIndent(r.Hosts, "", "  ")
 	if err != nil {
 		r.Logger.Error(err)
