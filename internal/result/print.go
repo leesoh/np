@@ -12,6 +12,7 @@ import (
 
 // Print prints all hosts and the details of their open ports
 func (r *Result) Print() {
+	r.SortByIP()
 	for _, hh := range r.Hosts {
 		r.hostPrinter(hh)
 		r.portPrinter(hh)
