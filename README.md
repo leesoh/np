@@ -34,8 +34,6 @@ Usage of ./np:
      Display hosts with matching service name
   -services
      Print all services
-  -timeline
-     Display timeline output
 ```
 
 The `-json` option will display all hosts with no filtering. Other formats omit ports that are likely false positives (e.g. `tcpwrapped`).
