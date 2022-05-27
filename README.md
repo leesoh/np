@@ -13,9 +13,11 @@ Supported scan types:
 ## Usage
 
 ```text
-Usage of np:
+Usage of ./np:
   -debug
      Display debug output
+  -exclude string
+     Exclude these hosts from output
   -host string
      Show results for specified host
   -hosts
@@ -34,7 +36,7 @@ Usage of np:
      Print all services
 ```
 
-The `-json` option will display all hosts with at least one open port, while the other formats will omit ports that are likely false positives (e.g. `tcpwrapped`).
+The `-json` option will display all hosts with no filtering. Other formats omit ports that are likely false positives (e.g. `tcpwrapped`).
 
 ## Examples
 
@@ -53,6 +55,18 @@ bishopfox.com (159.223.119.162)
 PORT    SERVICE PRODUCT VERSION
 80/tcp  http
 443/tcp https
+```
+
+Parse all scans, but ignore a host:
+
+```sh
+$ np -exclude bishopfox.com
+scanme.nmap.org (45.33.32.156)
+PORT      SERVICE    PRODUCT      VERSION
+80/tcp    http       Apache httpd 2.4.7
+22/tcp    ssh        OpenSSH      6.6.1p1 Ubuntu 2ubuntu2.13
+9929/tcp  nping-echo Nping echo
+31337/tcp Elite
 ```
 
 Print a specific host:
