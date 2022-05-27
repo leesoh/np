@@ -7,6 +7,7 @@ import (
 )
 
 type Options struct {
+	Exclude  []string
 	JSON     bool
 	Host     string
 	Hosts    bool
@@ -20,6 +21,7 @@ type Options struct {
 
 func ParseOptions() *Options {
 	options := &Options{}
+	exclude := flag.String("exclude", "", "Exclude these hosts from output")
 	flag.BoolVar(&options.JSON, "json", false, "Display JSON output")
 	flag.StringVar(&options.Host, "host", "", "Show results for specified host")
 	flag.BoolVar(&options.Hosts, "hosts", false, "Print alive hosts")
@@ -39,6 +41,10 @@ func ParseOptions() *Options {
 			}
 			options.Port = append(options.Port, pi)
 		}
+	}
+	if *exclude != "" {
+		el := strings.Split(*exclude, ",")
+		options.Exclude = append(options.Exclude, el...)
 	}
 	return options
 }

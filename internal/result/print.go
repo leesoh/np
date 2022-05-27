@@ -14,6 +14,13 @@ import (
 func (r *Result) Print() {
 	r.SortByIP()
 	for _, hh := range r.Hosts {
+		// We have to do it here since some scans will add by IP.
+		// So if we exclude example.com, but then massscan imports
+		// the IP for example.com, we want to wait until the last minute
+		// To ignore
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		r.hostPrinter(hh)
 		r.portPrinter(hh)
 	}
@@ -23,6 +30,9 @@ func (r *Result) Print() {
 func (r *Result) PrintHost(h *Host) {
 	// Iterate through all hosts to find a match for the requested host
 	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		if hh.IP.Equal(h.IP) {
 			r.hostPrinter(hh)
 		} else if hh.Name != "" && hh.Name == h.Name {
@@ -76,6 +86,9 @@ func (r *Result) portPrinter(h *Host) {
 func (r *Result) PrintAlive() {
 	r.SortByIP()
 	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		if r.allPortsClosed(hh) {
 			r.Logger.Debugf("all ports closed: %v", hh.IP)
 			continue
@@ -95,6 +108,9 @@ func (r *Result) PrintByService(service string) {
 	r.SortByIP()
 	var hosts []string
 	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		if r.allPortsClosed(hh) {
 			continue
 		}
@@ -123,6 +139,9 @@ func (r *Result) PrintServices() {
 	r.SortByIP()
 	var hosts []string
 	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		for k, v := range hh.TCPPorts {
 			r.Logger.Debugf("matched: %v", hh.GetName())
 			s := r.formatService(hh.GetName(), k, v.Name)
@@ -147,6 +166,9 @@ func (r *Result) formatService(name string, port int, service string) string {
 func (r *Result) PrintByPort(port []int) {
 	r.SortByIP()
 	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
 		if r.allPortsClosed(hh) {
 			continue
 		}
@@ -166,11 +188,14 @@ func (r *Result) PrintByPort(port []int) {
 // PrintPortSummary prints a comma-delimited list of ports (-ports)
 func (r *Result) PrintPortSummary() {
 	p := make(map[int]struct{})
-	for _, h := range r.Hosts {
-		for k := range h.TCPPorts {
+	for _, hh := range r.Hosts {
+		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
+		for k := range hh.TCPPorts {
 			p[k] = struct{}{}
 		}
-		for k := range h.UDPPorts {
+		for k := range hh.UDPPorts {
 			p[k] = struct{}{}
 		}
 	}

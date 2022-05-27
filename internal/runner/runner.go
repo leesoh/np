@@ -34,9 +34,10 @@ func New(options *Options) *Runner {
 
 func (r *Runner) Run() {
 	r.GetScanFiles()
-	res := result.New(r.Logger)
+	res := result.New(r.Logger, r.Options.Exclude)
 	for _, ff := range r.Files {
 		r.Logger.Debugf("processing %v", ff)
+		// Get last modified time for timeline output
 		b, err := ioutil.ReadFile(ff)
 		if err != nil {
 			r.Logger.Errorf("error reading file: %v", err)
@@ -45,7 +46,8 @@ func (r *Runner) Run() {
 		// If we don't process this first it will overwrite other scans
 		if s.IsNP() {
 			r.Logger.Debugf("found np scan: %s", ff)
-			s.ParseNP()
+			// We have to send the exclude list so we don't process previously saved hosts
+			s.ParseNP(r.Options.Exclude)
 		}
 		// This handles both Nmap and Masscan files as they have the same structure
 		if s.IsNmap() {

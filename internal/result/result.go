@@ -9,8 +9,9 @@ import (
 )
 
 type Result struct {
-	Logger *cli.Logger
-	Hosts  []*Host
+	Logger  *cli.Logger
+	Hosts   []*Host
+	Exclude []string
 }
 
 func (r *Result) SortByIP() {
@@ -20,9 +21,10 @@ func (r *Result) SortByIP() {
 
 }
 
-func New(logger *cli.Logger) *Result {
+func New(logger *cli.Logger, exclude []string) *Result {
 	return &Result{
-		Logger: logger,
+		Logger:  logger,
+		Exclude: exclude,
 	}
 }
 
@@ -31,7 +33,9 @@ func (r *Result) AddHost(newHost *Host) {
 	// We search our list of hosts for a match. If one is found,
 	// we add ports.
 	for _, hh := range r.Hosts {
+		// Don't process
 		if hh.IP.Equal(newHost.IP) {
+			r.Logger.Debugf("found existing host: %v", hh.IP)
 			hh.updateName(newHost.Name)
 			r.Logger.Debugf("adding ports to %v", hh.IP)
 			hh.addTCPPorts(newHost.TCPPorts)
@@ -50,6 +54,15 @@ type Host struct {
 	Name     string        `json:"hostname,omitempty"`
 	TCPPorts map[int]*Port `json:"tcp_ports,omitempty"`
 	UDPPorts map[int]*Port `json:"udp_ports,omitempty"`
+}
+
+func (h *Host) IsExcluded(el []string) bool {
+	for _, ee := range el {
+		if h.IP.String() == ee || h.Name == ee {
+			return true
+		}
+	}
+	return false
 }
 
 func (h *Host) updateName(hostname string) {

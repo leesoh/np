@@ -19,7 +19,7 @@ func (s *Scan) IsNP() bool {
 	return true
 }
 
-func (s *Scan) ParseNP() {
+func (s *Scan) ParseNP(el []string) {
 	var hosts []*result.Host
 	// We're importing an old np session so just unpack into results
 	err := json.Unmarshal(s.Bytes, &hosts)
