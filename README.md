@@ -189,8 +189,10 @@ go install github.com/leesoh/np/cmd/np@latest
 
 In case `np` isn't quite what you're looking for, here are a few similar tools:
 
-- [nmap-parse-output](https://github.com/ernw/nmap-parse-output) - Parse single Nmap scan output with extremely flexible output
 - [nmap-bootstrap-xsl](https://github.com/honze-net/nmap-bootstrap-xsl/) - Create nice looking HTML reports from Nmap scan output
+- [nmap-parse-output](https://github.com/ernw/nmap-parse-output) - Parse single Nmap scan output with extremely flexible output
+- [nmap-parse](https://github.com/jonny1102/nmap-parse) - Looks solid. If I had found this before writing `np` I might not have started :D
+- [ultimate-nmap-parsers](https://github.com/shifty0g/ultimate-nmap-parser) - Nice-looking parser with lots of output options
 
 ## Thanks
 
