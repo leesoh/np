@@ -23,7 +23,7 @@ func New(options *Options) *Runner {
 	if options.Debug {
 		logger.Level = log.DebugLevel
 	} else {
-		logger.Level = log.FatalLevel
+		logger.Level = log.ErrorLevel
 	}
 	runner := &Runner{
 		Logger:  logger,
