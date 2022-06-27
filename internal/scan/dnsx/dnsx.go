@@ -39,8 +39,9 @@ func Parse(scan []byte) (*DNSxScan, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error unmarshaling DNSx: %v", err)
 		}
+		// Incomplete data, move on
 		if isMissingKeys(r) {
-			return nil, fmt.Errorf("missing DNSx keys")
+			continue
 		}
 		s.Records = append(s.Records, r)
 	}
