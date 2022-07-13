@@ -4,6 +4,9 @@ import (
 	"flag"
 	"strconv"
 	"strings"
+
+	"github.com/Masterminds/log-go"
+	"github.com/Masterminds/log-go/impl/cli"
 )
 
 type Options struct {
@@ -11,6 +14,7 @@ type Options struct {
 	JSON     bool
 	Host     string
 	Hosts    bool
+	CIDR     string
 	Path     string
 	Port     []int
 	Ports    bool
@@ -21,10 +25,13 @@ type Options struct {
 
 func ParseOptions() *Options {
 	options := &Options{}
+	logger := cli.NewStandard()
+	logger.Level = log.ErrorLevel
 	exclude := flag.String("exclude", "", "Exclude these hosts from output")
 	flag.BoolVar(&options.JSON, "json", false, "Display JSON output")
 	flag.StringVar(&options.Host, "host", "", "Show results for specified host")
 	flag.BoolVar(&options.Hosts, "hosts", false, "Print alive hosts")
+	flag.StringVar(&options.CIDR, "cidr", "0.0.0.0/0", "CIDR range to output")
 	flag.StringVar(&options.Path, "path", ".", "Path to scan file")
 	port := flag.String("port", "", "Display hosts with matching port(s)")
 	flag.BoolVar(&options.Ports, "ports", false, "Print all ports")

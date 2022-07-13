@@ -12,6 +12,7 @@ type Result struct {
 	Logger  *cli.Logger
 	Hosts   []*Host
 	Exclude []string
+	CIDR    *net.IPNet
 }
 
 func (r *Result) SortByIP() {
@@ -21,11 +22,24 @@ func (r *Result) SortByIP() {
 
 }
 
-func New(logger *cli.Logger, exclude []string) *Result {
+func New(logger *cli.Logger, exclude []string, cidr string) *Result {
+	c, err := parseCIDR(cidr)
+	if err != nil {
+		logger.Errorf("error parsing CIDR: %s", err)
+	}
 	return &Result{
 		Logger:  logger,
 		Exclude: exclude,
+		CIDR:    c,
 	}
+}
+
+func parseCIDR(cidr string) (*net.IPNet, error) {
+	_, c, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func (r *Result) AddHost(newHost *Host) {
@@ -63,6 +77,10 @@ func (h *Host) IsExcluded(el []string) bool {
 		}
 	}
 	return false
+}
+
+func (h *Host) NotInCIDR(c *net.IPNet) bool {
+	return !c.Contains(h.IP)
 }
 
 func (h *Host) updateName(hostname string) {
