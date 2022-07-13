@@ -34,7 +34,7 @@ func New(options *Options) *Runner {
 
 func (r *Runner) Run() {
 	r.GetScanFiles()
-	res := result.New(r.Logger, r.Options.Exclude)
+	res := result.New(r.Logger, r.Options.Exclude, r.Options.CIDR)
 	for _, ff := range r.Files {
 		r.Logger.Debugf("processing %v", ff)
 		// Get last modified time for timeline output

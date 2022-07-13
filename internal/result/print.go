@@ -21,6 +21,9 @@ func (r *Result) Print() {
 		if hh.IsExcluded(r.Exclude) {
 			continue
 		}
+		if hh.NotInCIDR(r.CIDR) {
+			continue
+		}
 		r.hostPrinter(hh)
 		r.portPrinter(hh)
 	}
@@ -31,6 +34,9 @@ func (r *Result) PrintHost(h *Host) {
 	// Iterate through all hosts to find a match for the requested host
 	for _, hh := range r.Hosts {
 		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
+		if hh.NotInCIDR(r.CIDR) {
 			continue
 		}
 		if hh.IP.Equal(h.IP) {
@@ -89,6 +95,9 @@ func (r *Result) PrintAlive() {
 		if hh.IsExcluded(r.Exclude) {
 			continue
 		}
+		if hh.NotInCIDR(r.CIDR) {
+			continue
+		}
 		if r.allPortsClosed(hh) {
 			r.Logger.Debugf("all ports closed: %v", hh.IP)
 			continue
@@ -109,6 +118,9 @@ func (r *Result) PrintByService(service string) {
 	var hosts []string
 	for _, hh := range r.Hosts {
 		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
+		if hh.NotInCIDR(r.CIDR) {
 			continue
 		}
 		if r.allPortsClosed(hh) {
@@ -142,6 +154,9 @@ func (r *Result) PrintServices() {
 		if hh.IsExcluded(r.Exclude) {
 			continue
 		}
+		if hh.NotInCIDR(r.CIDR) {
+			continue
+		}
 		for k, v := range hh.TCPPorts {
 			r.Logger.Debugf("matched: %v", hh.GetName())
 			s := r.formatService(hh.GetName(), k, v.Name)
@@ -169,6 +184,9 @@ func (r *Result) PrintByPort(port []int) {
 		if hh.IsExcluded(r.Exclude) {
 			continue
 		}
+		if hh.NotInCIDR(r.CIDR) {
+			continue
+		}
 		if r.allPortsClosed(hh) {
 			continue
 		}
@@ -190,6 +208,9 @@ func (r *Result) PrintPortSummary() {
 	p := make(map[int]struct{})
 	for _, hh := range r.Hosts {
 		if hh.IsExcluded(r.Exclude) {
+			continue
+		}
+		if hh.NotInCIDR(r.CIDR) {
 			continue
 		}
 		for k := range hh.TCPPorts {
