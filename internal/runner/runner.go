@@ -54,9 +54,13 @@ func (r *Runner) Run() {
 			r.Logger.Debugf("found nmap scan: %s", ff)
 			s.ParseNmap()
 		}
-		if s.IsNaabu() {
-			r.Logger.Debugf("found naabu scan: %s", ff)
-			s.ParseNaabu()
+		if s.IsNaabuV1() {
+			r.Logger.Debugf("found naabu v1 scan: %s", ff)
+			s.ParseNaabuV1()
+		}
+		if s.IsNaabuV2() {
+			r.Logger.Debugf("found naabu v2 scan: %s", ff)
+			s.ParseNaabuV2()
 		}
 		if s.IsDNSx() {
 			r.Logger.Debugf("found DNSx scan: %s", ff)

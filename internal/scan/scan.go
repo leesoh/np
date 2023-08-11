@@ -90,25 +90,61 @@ func (s *Scan) getNmapPorts(h nmap.Host, protocol string) map[int]*result.Port {
 	return ports
 }
 
-func (s *Scan) IsNaabu() bool {
-	if _, err := naabu.Parse(s.Bytes); err != nil {
-		s.Logger.Debugf("not a Naabu scan: %v", err)
+// IsNaabuV1 checks whether the v2.1.11 or earlier template is used.
+// I'm calling it IsNaabuV1 since it's the first type of output they used.
+func (s *Scan) IsNaabuV1() bool {
+	if _, err := naabu.ParseV1(s.Bytes); err != nil {
+		s.Logger.Debugf("not a Naabu V1 scan: %v", err)
 		return false
 	}
 	return true
 }
 
-func (s *Scan) ParseNaabu() {
-	ns, err := naabu.Parse(s.Bytes)
+// IsNaabuV2 checks whether the v2.1.11 or earlier template is used.
+// I'm calling it IsNaabuV2 since it's the first type of output they used.
+func (s *Scan) IsNaabuV2() bool {
+	if _, err := naabu.ParseV2(s.Bytes); err != nil {
+		s.Logger.Debugf("not a Naabu V2 scan: %v", err)
+		return false
+	}
+	return true
+}
+
+func (s *Scan) ParseNaabuV1() {
+	ns, err := naabu.ParseV1(s.Bytes)
 	if err != nil {
 		s.Logger.Errorf("error parsing Naabu scan: %v", err)
 	}
-	for _, hh := range ns.Hosts {
+	for _, hh := range ns.V1Hosts {
 		h := &result.Host{
 			Name:     hh.Name,
 			IP:       s.stringToIP(hh.IPAddress),
 			TCPPorts: s.intToPort(hh.Port),
-			UDPPorts: map[int]*result.Port{}, // Naabu doesn't scan UDP ports
+			UDPPorts: map[int]*result.Port{}, // Naabu V1 format
+		}
+		s.Result.AddHost(h)
+		s.Logger.Debugf("added host: %v", h.IP)
+	}
+}
+
+func (s *Scan) ParseNaabuV2() {
+	ns, err := naabu.ParseV2(s.Bytes)
+	if err != nil {
+		s.Logger.Errorf("error parsing Naabu scan: %v", err)
+	}
+	for _, hh := range ns.V2Hosts {
+		h := &result.Host{
+			Name: hh.Name,
+			IP:   s.stringToIP(hh.IPAddress),
+		}
+		// https://github.com/projectdiscovery/naabu/blob/46dc6d250523f0047532d6009017863a6276040b/v2/pkg/protocol/protocol.go#L6
+		switch hh.Port.Protocol {
+		case 0:
+			h.TCPPorts = s.intToPort(hh.Port.Port)
+		case 1:
+			h.UDPPorts = s.intToPort(hh.Port.Port)
+		default:
+			s.Logger.Debugf("unsupported protocol")
 		}
 		s.Result.AddHost(h)
 		s.Logger.Debugf("added host: %v", h.IP)
